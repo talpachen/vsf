@@ -99,18 +99,20 @@ enum em_usart_irq_mask_t {
     USART_IRQ_MASK_TX               = BIT(1),
     USART_IRQ_MASK_RX_CPL           = BIT(2),
     USART_IRQ_MASK_TX_CPL           = BIT(3),
-
+    USART_IRQ_MASK_RX_TIMEOUT       = BIT(4),
+    
     // optional
-    USART_IRQ_MASK_RX_ERR           = BIT(4),
-    USART_IRQ_MASK_TX_ERR           = BIT(5),
+    USART_IRQ_MASK_RX_ERR           = BIT(5),
+    USART_IRQ_MASK_TX_ERR           = BIT(6),
     USART_IRQ_MASK_ERR              = USART_IRQ_MASK_RX_ERR | USART_IRQ_MASK_TX_ERR,
-
+    
     USART_IRQ_MASK                  =       USART_IRQ_MASK_RX
                                         |   USART_IRQ_MASK_TX
                                         |   USART_IRQ_MASK_RX_CPL
                                         |   USART_IRQ_MASK_TX_CPL
                                         |   USART_IRQ_MASK_RX_ERR
-                                        |   USART_IRQ_MASK_TX_ERR,
+                                        |   USART_IRQ_MASK_TX_ERR
+                                        |   USART_IRQ_MASK_RX_TIMEOUT,
 };
 
 typedef struct m480_usart_t {

@@ -122,12 +122,12 @@ m480_usart_init(USART_MAX_PORT);
 static em_usart_irq_mask_t __get_uart_irq(vsf_usart_t *usart_ptr)
 {
     usart_ptr->irq_mask = 0ul;
-    if (UART_INTSTS_RDAIF_Msk == (usart_ptr->param.usart->INTSTS & UART_INTSTS_RDAIF_Msk)) {
-        usart_ptr->param.usart->INTSTS &= ~UART_INTSTS_RDAIF_Msk;
+    if (UART_INTSTS_RDAINT_Msk == (usart_ptr->param.usart->INTSTS & UART_INTSTS_RDAINT_Msk)) {
         usart_ptr->irq_mask |= USART_IRQ_MASK_RX;
+    } else if (UART_INTSTS_RXTOIF_Msk == (usart_ptr->param.usart->INTSTS & UART_INTSTS_RXTOIF_Msk)) {
+        usart_ptr->irq_mask |= USART_IRQ_MASK_RX_TIMEOUT;
     }
     if (UART_INTSTS_TXENDINT_Msk == (usart_ptr->param.usart->INTSTS & UART_INTSTS_TXENDINT_Msk)) {
-        usart_ptr->param.usart->INTSTS &= ~UART_INTSTS_TXENDINT_Msk;
         usart_ptr->irq_mask |= USART_IRQ_MASK_TX;
     }
     return usart_ptr->irq_mask;
@@ -172,6 +172,11 @@ vsf_err_t vsf_usart_init(vsf_usart_t *usart_ptr, usart_cfg_t *cfg_ptr)
     uint32_t u32_clk_tbl[4] = {__HXT, 0ul, __LXT, __HIRC};
 
     usart_ptr->status.is_busy = true;
+    do {
+        SYS->REGLCTL = 0x59UL;
+        SYS->REGLCTL = 0x16UL;
+        SYS->REGLCTL = 0x88UL;
+    } while(SYS->REGLCTL == 0UL);
     if (((usart_ptr->param.module >> 10) & 0xfful) != 0) {
         if (((usart_ptr->param.module >> 18) & 0x3ul) == 2ul) {
             u32_div = (uint32_t)&CLK->CLKDIV3;
@@ -191,7 +196,7 @@ vsf_err_t vsf_usart_init(vsf_usart_t *usart_ptr, usart_cfg_t *cfg_ptr)
     u32_tmp_addr += (((usart_ptr->param.module >> 30) & 0x3ul) * 4ul);
     *(volatile uint32_t *)u32_tmp_addr |= u32_tmp_val;
     u32_tmp_val = (1ul << (usart_ptr->param.uartx_rst & 0x00fffffful));
-    u32_tmp_addr = (uint32_t)&SYS->IPRST0 + ((usart_ptr->param.uartx_rst >> 24ul));
+    u32_tmp_addr = (uint32_t)&SYS->IPRST1 + ((usart_ptr->param.uartx_rst >> 24ul));
     *(uint32_t *)u32_tmp_addr |= u32_tmp_val;
     u32_tmp_val = ~(1ul << (usart_ptr->param.uartx_rst & 0x00fffffful));
     *(uint32_t *)u32_tmp_addr &= u32_tmp_val;
@@ -239,15 +244,8 @@ vsf_err_t vsf_usart_init(vsf_usart_t *usart_ptr, usart_cfg_t *cfg_ptr)
         }
     }
     usart_ptr->cfg = *cfg_ptr;
-    if (usart_ptr->cfg.isr.handler_fn != NULL) {
-        NVIC_SetPriorityGrouping(usart_ptr->cfg.isr.prio);
-        NVIC_EnableIRQ(usart_ptr->param.irq);
-    } else {
-        NVIC_DisableIRQ(usart_ptr->param.irq);
-    }
-
-    
     usart_ptr->status.is_busy = false;
+    NVIC_EnableIRQ(usart_ptr->param.irq);
     return VSF_ERR_NONE;
 }
 
@@ -328,7 +326,8 @@ void vsf_usart_irq_disable(vsf_usart_t *usart_ptr, em_usart_irq_mask_t irq_mask)
 {
     if (USART_IRQ_MASK == (USART_IRQ_MASK & irq_mask)) {
         NVIC_DisableIRQ(usart_ptr->param.irq);
-        usart_ptr->param.usart->INTEN &= ~USART_IRQ_MASK;
+        usart_ptr->param.usart->INTEN &= ~UART_INTEN_RDAIEN_Msk;
+        usart_ptr->param.usart->INTEN &= ~UART_INTEN_TXENDIEN_Msk;
         return;
     }
     if (irq_mask & USART_IRQ_MASK_RX) {
@@ -344,7 +343,7 @@ vsf_err_t vsf_usart_request_rx(vsf_usart_t *usart_ptr, void *buffer_ptr, uint_fa
     if (!(usart_ptr->is_enabled)) {
         return VSF_ERR_NOT_READY;
     }
-    //todo:
+    // set uart_dma
     return VSF_ERR_NONE;
 }
 
