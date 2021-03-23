@@ -96,14 +96,42 @@
 #define __vsf_hw_usart_imp_lv0(__count)                                     \
     VSF_MREPEAT(__count, ____vsf_hw_usart_imp_lv0, __count)
 
+#define def_usart_irq_fun(__num, __dont_care)                               \
+void UART##__num##_IRQHandler (void)                                        \
+{                                                                           \
+    if (NULL != vsf_usart##__num.cfg.isr.handler_fn) {                      \
+        vsf_usart##__num.irq_mask = __get_uart_irq(&vsf_usart##__num);      \
+        vsf_usart##__num.cfg.isr.handler_fn (vsf_usart##__num.cfg.isr.target_ptr,\
+                                       &vsf_usart##__num,                   \
+                                       vsf_usart##__num.irq_mask);          \
+  }                                                                         \
+}
+
+#define __def_usart_irq_fun(__count)                                        \
+    VSF_MREPEAT(__count, def_usart_irq_fun, __count)
+        
 #define m480_usart_init(__count)                                            \
     __vsf_hw_usart_imp_lv0(__count)
+    
+        
+
 /*============================ TYPES =========================================*/
 /*============================ GLOBAL VARIABLES ==============================*/
 /*============================ LOCAL VARIABLES ===============================*/
 
 m480_usart_init(USART_MAX_PORT);
 /*============================ PROTOTYPES ====================================*/
+
+static em_usart_irq_mask_t __get_uart_irq(vsf_usart_t *usart_ptr)
+{
+    if (usart_ptr->param.usart->INTSTS & UART_INTSTS_RDAIF_Msk) {
+        usart_ptr->irq_mask |= USART_IRQ_MASK_RX;
+    }
+    if (usart_ptr->param.usart->INTSTS & UART_INTSTS_THREIF_Msk) {
+        usart_ptr->irq_mask |= USART_IRQ_MASK_TX;
+    }
+    return usart_ptr->irq_mask;
+}
 
 static uint32_t __clk_get_pllclockfreq(void)
 {
@@ -195,9 +223,10 @@ vsf_err_t vsf_usart_init(vsf_usart_t *usart_ptr, usart_cfg_t *cfg_ptr)
     usart_ptr->param.usart->LINE =      (cfg_ptr->mode & USART_BIT_LENGTH)
                                     |   (((cfg_ptr->mode & USART_PARITY) >> 16) << UART_LINE_PBE_Pos)
                                     |   (((cfg_ptr->mode & USART_STOPBIT) >> 8) << UART_LINE_NSB_Pos)
-                                    |   ((cfg_ptr->mode & USART_TX_INVERTED >> 26) << UART_LINE_TXDINV_Pos)
-                                    |   ((cfg_ptr->mode & USART_RX_INVERTED >> 27) << UART_LINE_RXDINV_Pos);
+                                    |   (((cfg_ptr->mode & USART_TX_INVERTED) >> 26) << UART_LINE_TXDINV_Pos)
+                                    |   (((cfg_ptr->mode & USART_RX_INVERTED) >> 27) << UART_LINE_RXDINV_Pos);
     usart_ptr->param.usart->FIFO &= ~(UART_FIFO_RFITL_Msk | UART_FIFO_RTSTRGLV_Msk| UART_FIFO_RXOFF_Msk);
+    usart_ptr->param.usart->INTEN |= UART_INTEN_LINIEN_Msk;
 
     if (u32_uart_clk_src_sel == 1ul) {
         u32_clk_tbl[u32_uart_clk_src_sel] = __clk_get_pllclockfreq();
@@ -263,7 +292,7 @@ uint_fast16_t vsf_usart_fifo_write(vsf_usart_t *usart_ptr, void *buffer_ptr, uin
             usart_ptr->status.tx_error_detected = true;
             return ret_count;
         }
-        usart_ptr->param.usart->DAT = 0x5500;
+        usart_ptr->param.usart->DAT = *((uint8_t *)buffer_ptr + ret_count);
     }
     usart_ptr->status.is_busy = false;
     return ret_count;
@@ -278,6 +307,8 @@ bool vsf_usart_fifo_flush(vsf_usart_t *usart_ptr)
 
 void vsf_usart_irq_enable(vsf_usart_t *usart_ptr, em_usart_irq_mask_t irq_mask)
 {
+    NVIC_EnableIRQ(usart_ptr->param.irq);
+
     if (irq_mask & USART_IRQ_MASK_RX) {
         usart_ptr->param.usart->INTEN |= UART_INTEN_RDAIEN_Msk;
     }
@@ -285,19 +316,8 @@ void vsf_usart_irq_enable(vsf_usart_t *usart_ptr, em_usart_irq_mask_t irq_mask)
         usart_ptr->param.usart->INTEN |= UART_INTEN_THREIEN_Msk;
     }
     //todo:
-//    if (irq_mask & USART_IRQ_MASK_RX_CPL) {
-//
-//    }
-//    if (irq_mask & USART_IRQ_MASK_TX_CPL) {
-//
-//    }
-//    if (irq_mask & USART_IRQ_MASK_RX_ERR) {
-//
-//    }
-//    if (irq_mask & USART_IRQ_MASK_TX_ERR) {
-//
-//    }
 }
+
 void vsf_usart_irq_disable(vsf_usart_t *usart_ptr, em_usart_irq_mask_t irq_mask)
 {
     if (irq_mask & USART_IRQ_MASK_RX) {
@@ -316,6 +336,7 @@ vsf_err_t vsf_usart_request_rx(vsf_usart_t *usart_ptr, void *buffer_ptr, uint_fa
     //todo:
     return VSF_ERR_NONE;
 }
+
 vsf_err_t vsf_usart_request_tx(vsf_usart_t *usart_ptr, void *buffer_ptr, uint_fast32_t count)
 {
     if (!(usart_ptr->is_enabled)) {
@@ -324,4 +345,6 @@ vsf_err_t vsf_usart_request_tx(vsf_usart_t *usart_ptr, void *buffer_ptr, uint_fa
     //todo:
     return VSF_ERR_NONE;
 }
+// call irq func
+__def_usart_irq_fun(USART_MAX_PORT)
 /*============================ IMPLEMENTATION ================================*/

@@ -123,25 +123,14 @@ struct usart_status_t {
     uint32_t                        more_status : 27;
 };
 
-typedef struct rx_tx_gpio_t {
-    struct {
-        vsf_gpio_t                  *reg;
-        uint32_t                    pin_mask;
-    }rx;
-    struct {
-        vsf_gpio_t                  *reg;
-        uint32_t                    pin_mask;
-    }tx;
-}rx_tx_gpio_t;
-
 struct vsf_usart_t {
     usart_status_t                  status;
     uint8_t                         usart_port_num;
     uint8_t                         *tx_buf;
     uint8_t                         *rx_buf;
     usart_cfg_t                     cfg;
-    rx_tx_gpio_t                    gpio_reg;
     uint8_t                         is_enabled : 1;
+    em_usart_irq_mask_t             irq_mask;
     const m480_usart_t              param;
 };
 /*============================ GLOBAL VARIABLES ==============================*/
