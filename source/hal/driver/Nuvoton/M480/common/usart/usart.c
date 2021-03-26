@@ -28,42 +28,42 @@
 #define UART4_RST                               ((4ul << 24) | SYS_IPRST1_UART4RST_Pos)
 #define UART5_RST                               ((4ul << 24) | SYS_IPRST1_UART5RST_Pos)
 
-#define UART0_MODULE                            ((1ul << 30) | (1ul << 28) | (0x3ul << 25) | (24ul << 20) | (0ul << 18) | (0xFul << 10) | (8ul << 5) |(16ul << 0))
-#define UART1_MODULE                            ((1ul << 30) | (1ul << 28) | (0x3ul << 25) | (26ul << 20) | (0ul << 18) | (0xFul << 10) | (12ul << 5) |(17ul << 0))
-#define UART2_MODULE                            ((1ul << 30) | (3ul << 28) | (0x3ul << 25) | (24ul << 20) | (3ul << 18) | (0xFul << 10) | (0ul << 5) |(18ul << 0))
-#define UART3_MODULE                            ((1ul << 30) | (3ul << 28) | (0x3ul << 25) | (26ul << 20) | (3ul << 18) | (0xFul << 10) | (4ul << 5) |(19ul << 0))
-#define UART4_MODULE                            ((1ul << 30) | (3ul << 28) | (0x3ul << 25) | (28ul << 20) | (3ul << 18) | (0xFul << 10) | (8ul << 5) |(20ul << 0))
-#define UART5_MODULE                            ((1ul << 30) | (3ul << 28) | (0x3ul << 25) | (30ul << 20) | (3ul << 18) | (0xFul << 10) | (12ul << 5) |(21ul << 0))
+#define UART0_MODULE                            ((1ul << 30) | (1ul << 28) | (0x3ul << 25) | (24ul << 20) | (0ul << 18) | (0xful << 10) | (8ul << 5) |(16ul << 0))
+#define UART1_MODULE                            ((1ul << 30) | (1ul << 28) | (0x3ul << 25) | (26ul << 20) | (0ul << 18) | (0xful << 10) | (12ul << 5) |(17ul << 0))
+#define UART2_MODULE                            ((1ul << 30) | (3ul << 28) | (0x3ul << 25) | (24ul << 20) | (3ul << 18) | (0xful << 10) | (0ul << 5) |(18ul << 0))
+#define UART3_MODULE                            ((1ul << 30) | (3ul << 28) | (0x3ul << 25) | (26ul << 20) | (3ul << 18) | (0xful << 10) | (4ul << 5) |(19ul << 0))
+#define UART4_MODULE                            ((1ul << 30) | (3ul << 28) | (0x3ul << 25) | (28ul << 20) | (3ul << 18) | (0xful << 10) | (8ul << 5) |(20ul << 0))
+#define UART5_MODULE                            ((1ul << 30) | (3ul << 28) | (0x3ul << 25) | (30ul << 20) | (3ul << 18) | (0xful << 10) | (12ul << 5) |(21ul << 0))
 
-#define UART0SEL_HXT                            (0x0UL << CLK_CLKSEL1_UART0SEL_Pos)
-#define UART0SEL_LXT                            (0x2UL << CLK_CLKSEL1_UART0SEL_Pos)
-#define UART0SEL_PLL                            (0x1UL << CLK_CLKSEL1_UART0SEL_Pos)
-#define UART0SEL_HIRC                           (0x3UL << CLK_CLKSEL1_UART0SEL_Pos)
+#define UART0SEL_HXT                            (0x0ul << CLK_CLKSEL1_UART0SEL_Pos)
+#define UART0SEL_LXT                            (0x2ul << CLK_CLKSEL1_UART0SEL_Pos)
+#define UART0SEL_PLL                            (0x1ul << CLK_CLKSEL1_UART0SEL_Pos)
+#define UART0SEL_HIRC                           (0x3ul << CLK_CLKSEL1_UART0SEL_Pos)
 
-#define UART1SEL_HXT                            (0x0UL << CLK_CLKSEL1_UART1SEL_Pos)
-#define UART1SEL_LXT                            (0x2UL << CLK_CLKSEL1_UART1SEL_Pos)
-#define UART1SEL_PLL                            (0x1UL << CLK_CLKSEL1_UART1SEL_Pos)
-#define UART1SEL_HIRC                           (0x3UL << CLK_CLKSEL1_UART1SEL_Pos)
+#define UART1SEL_HXT                            (0x0ul << CLK_CLKSEL1_UART1SEL_Pos)
+#define UART1SEL_LXT                            (0x2ul << CLK_CLKSEL1_UART1SEL_Pos)
+#define UART1SEL_PLL                            (0x1ul << CLK_CLKSEL1_UART1SEL_Pos)
+#define UART1SEL_HIRC                           (0x3ul << CLK_CLKSEL1_UART1SEL_Pos)
 
-#define UART2SEL_HXT                            (0x0UL << CLK_CLKSEL3_UART2SEL_Pos)
-#define UART2SEL_LXT                            (0x2UL << CLK_CLKSEL3_UART2SEL_Pos)
-#define UART2SEL_PLL                            (0x1UL << CLK_CLKSEL3_UART2SEL_Pos)
-#define UART2SEL_HIRC                           (0x3UL << CLK_CLKSEL3_UART2SEL_Pos)
+#define UART2SEL_HXT                            (0x0ul << CLK_CLKSEL3_UART2SEL_Pos)
+#define UART2SEL_LXT                            (0x2ul << CLK_CLKSEL3_UART2SEL_Pos)
+#define UART2SEL_PLL                            (0x1ul << CLK_CLKSEL3_UART2SEL_Pos)
+#define UART2SEL_HIRC                           (0x3ul << CLK_CLKSEL3_UART2SEL_Pos)
 
-#define UART3SEL_HXT                            (0x0UL << CLK_CLKSEL3_UART3SEL_Pos)
-#define UART3SEL_LXT                            (0x2UL << CLK_CLKSEL3_UART3SEL_Pos)
-#define UART3SEL_PLL                            (0x1UL << CLK_CLKSEL3_UART3SEL_Pos)
-#define UART3SEL_HIRC                           (0x3UL << CLK_CLKSEL3_UART3SEL_Pos)
+#define UART3SEL_HXT                            (0x0ul << CLK_CLKSEL3_UART3SEL_Pos)
+#define UART3SEL_LXT                            (0x2ul << CLK_CLKSEL3_UART3SEL_Pos)
+#define UART3SEL_PLL                            (0x1ul << CLK_CLKSEL3_UART3SEL_Pos)
+#define UART3SEL_HIRC                           (0x3ul << CLK_CLKSEL3_UART3SEL_Pos)
 
-#define UART4SEL_HXT                            (0x0UL << CLK_CLKSEL3_UART4SEL_Pos)
-#define UART4SEL_LXT                            (0x2UL << CLK_CLKSEL3_UART4SEL_Pos)
-#define UART4SEL_PLL                            (0x1UL << CLK_CLKSEL3_UART4SEL_Pos)
-#define UART4SEL_HIRC                           (0x3UL << CLK_CLKSEL3_UART4SEL_Pos)
+#define UART4SEL_HXT                            (0x0ul << CLK_CLKSEL3_UART4SEL_Pos)
+#define UART4SEL_LXT                            (0x2ul << CLK_CLKSEL3_UART4SEL_Pos)
+#define UART4SEL_PLL                            (0x1ul << CLK_CLKSEL3_UART4SEL_Pos)
+#define UART4SEL_HIRC                           (0x3ul << CLK_CLKSEL3_UART4SEL_Pos)
 
-#define UART5SEL_HXT                            (0x0UL << CLK_CLKSEL3_UART5SEL_Pos)
-#define UART5SEL_LXT                            (0x2UL << CLK_CLKSEL3_UART5SEL_Pos)
-#define UART5SEL_PLL                            (0x1UL << CLK_CLKSEL3_UART5SEL_Pos)
-#define UART5SEL_HIRC                           (0x3UL << CLK_CLKSEL3_UART5SEL_Pos)
+#define UART5SEL_HXT                            (0x0ul << CLK_CLKSEL3_UART5SEL_Pos)
+#define UART5SEL_LXT                            (0x2ul << CLK_CLKSEL3_UART5SEL_Pos)
+#define UART5SEL_PLL                            (0x1ul << CLK_CLKSEL3_UART5SEL_Pos)
+#define UART5SEL_HIRC                           (0x3ul << CLK_CLKSEL3_UART5SEL_Pos)
 /*============================ MACROFIED FUNCTIONS ===========================*/
 
 #define __UART0SEL(__TYPE)                      UART0SEL_##__TYPE
@@ -104,17 +104,14 @@ void UART##__num##_IRQHandler (void)                                        \
         vsf_usart##__num.cfg.isr.handler_fn (vsf_usart##__num.cfg.isr.target_ptr,\
                                        &vsf_usart##__num,                   \
                                        vsf_usart##__num.irq_mask);          \
-  }                                                                         \
+    }                                                                       \
 }
 
 #define __def_usart_irq_fun(__count)                                        \
     VSF_MREPEAT(__count, def_usart_irq_fun, __count)
-        
+
 #define m480_usart_init(__count)                                            \
     __vsf_hw_usart_imp_lv0(__count)
-    
-        
-
 /*============================ TYPES =========================================*/
 /*============================ GLOBAL VARIABLES ==============================*/
 /*============================ LOCAL VARIABLES ===============================*/
@@ -124,10 +121,13 @@ m480_usart_init(USART_MAX_PORT);
 
 static em_usart_irq_mask_t __get_uart_irq(vsf_usart_t *usart_ptr)
 {
-    if (usart_ptr->param.usart->INTSTS & UART_INTSTS_RDAIF_Msk) {
+    usart_ptr->irq_mask = 0ul;
+    if (UART_INTSTS_RDAIF_Msk == (usart_ptr->param.usart->INTSTS & UART_INTSTS_RDAIF_Msk)) {
+        usart_ptr->param.usart->INTSTS &= ~UART_INTSTS_RDAIF_Msk;
         usart_ptr->irq_mask |= USART_IRQ_MASK_RX;
     }
-    if (usart_ptr->param.usart->INTSTS & UART_INTSTS_THREIF_Msk) {
+    if (UART_INTSTS_TXENDINT_Msk == (usart_ptr->param.usart->INTSTS & UART_INTSTS_TXENDINT_Msk)) {
+        usart_ptr->param.usart->INTSTS &= ~UART_INTSTS_TXENDINT_Msk;
         usart_ptr->irq_mask |= USART_IRQ_MASK_TX;
     }
     return usart_ptr->irq_mask;
@@ -226,20 +226,21 @@ vsf_err_t vsf_usart_init(vsf_usart_t *usart_ptr, usart_cfg_t *cfg_ptr)
                                     |   (((cfg_ptr->mode & USART_TX_INVERTED) >> 26) << UART_LINE_TXDINV_Pos)
                                     |   (((cfg_ptr->mode & USART_RX_INVERTED) >> 27) << UART_LINE_RXDINV_Pos);
     usart_ptr->param.usart->FIFO &= ~(UART_FIFO_RFITL_Msk | UART_FIFO_RTSTRGLV_Msk| UART_FIFO_RXOFF_Msk);
-    usart_ptr->param.usart->INTEN |= UART_INTEN_LINIEN_Msk;
 
     if (u32_uart_clk_src_sel == 1ul) {
         u32_clk_tbl[u32_uart_clk_src_sel] = __clk_get_pllclockfreq();
     }
     if (cfg_ptr->baudrate != 0ul) {
         u32_baud_div = (((u32_clk_tbl[u32_uart_clk_src_sel] / (u32_uart_clk_div_num + 1ul)) + cfg_ptr->baudrate / 2ul) / cfg_ptr->baudrate) - 2ul;
-        if (u32_baud_div > 0xFFFFul) {
+        if (u32_baud_div > 0xfffful) {
             usart_ptr->param.usart->BAUD = (0ul | (((u32_clk_tbl[u32_uart_clk_src_sel] / (u32_uart_clk_div_num + 1ul) + cfg_ptr->baudrate * 8ul) / cfg_ptr->baudrate >> 4ul) - 2ul));
         } else {
             usart_ptr->param.usart->BAUD = (UART_BAUD_BAUDM1_Msk | UART_BAUD_BAUDM0_Msk | u32_baud_div);
         }
     }
+    usart_ptr->cfg = *cfg_ptr;
     usart_ptr->status.is_busy = false;
+    NVIC_EnableIRQ(usart_ptr->param.irq);
     return VSF_ERR_NONE;
 }
 
@@ -307,24 +308,27 @@ bool vsf_usart_fifo_flush(vsf_usart_t *usart_ptr)
 
 void vsf_usart_irq_enable(vsf_usart_t *usart_ptr, em_usart_irq_mask_t irq_mask)
 {
-    NVIC_EnableIRQ(usart_ptr->param.irq);
-
     if (irq_mask & USART_IRQ_MASK_RX) {
         usart_ptr->param.usart->INTEN |= UART_INTEN_RDAIEN_Msk;
     }
     if (irq_mask & USART_IRQ_MASK_TX) {
-        usart_ptr->param.usart->INTEN |= UART_INTEN_THREIEN_Msk;
+        usart_ptr->param.usart->INTEN |= UART_INTEN_TXENDIEN_Msk;
     }
     //todo:
 }
 
 void vsf_usart_irq_disable(vsf_usart_t *usart_ptr, em_usart_irq_mask_t irq_mask)
 {
+    if (USART_IRQ_MASK == (USART_IRQ_MASK & irq_mask)) {
+        NVIC_DisableIRQ(usart_ptr->param.irq);
+        usart_ptr->param.usart->INTEN &= ~USART_IRQ_MASK;
+        return;
+    }
     if (irq_mask & USART_IRQ_MASK_RX) {
-        usart_ptr->param.usart->INTEN &= ~(UART_INTEN_RDAIEN_Msk | 0xffffffff);
+        usart_ptr->param.usart->INTEN &= ~UART_INTEN_RDAIEN_Msk;
     }
     if (irq_mask & USART_IRQ_MASK_TX) {
-        usart_ptr->param.usart->INTEN &= ~(UART_INTEN_THREIEN_Msk | 0xffffffff);
+        usart_ptr->param.usart->INTEN &= ~UART_INTEN_TXENDIEN_Msk;
     }
 }
 
@@ -345,6 +349,7 @@ vsf_err_t vsf_usart_request_tx(vsf_usart_t *usart_ptr, void *buffer_ptr, uint_fa
     //todo:
     return VSF_ERR_NONE;
 }
-// call irq func
-__def_usart_irq_fun(USART_MAX_PORT)
 /*============================ IMPLEMENTATION ================================*/
+
+// define call irq func
+__def_usart_irq_fun(USART_MAX_PORT)
