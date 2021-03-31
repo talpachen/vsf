@@ -239,8 +239,15 @@ vsf_err_t vsf_usart_init(vsf_usart_t *usart_ptr, usart_cfg_t *cfg_ptr)
         }
     }
     usart_ptr->cfg = *cfg_ptr;
+    if (usart_ptr->cfg.isr.handler_fn != NULL) {
+        NVIC_SetPriorityGrouping(usart_ptr->cfg.isr.prio);
+        NVIC_EnableIRQ(usart_ptr->param.irq);
+    } else {
+        NVIC_DisableIRQ(usart_ptr->param.irq);
+    }
+
+    
     usart_ptr->status.is_busy = false;
-    NVIC_EnableIRQ(usart_ptr->param.irq);
     return VSF_ERR_NONE;
 }
 
