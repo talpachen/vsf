@@ -10,15 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: fiam/arm-none-eabi-gcc@v1
+    - name: Pull Code
+      uses: actions/checkout@v2
+    - name: Get GCC
+      uses: fiam/arm-none-eabi-gcc@v1
       with:
         release: '10-2020-q4'
     - name: Install Ninja
       run: sudo apt-get install ninja-build
-    - name: Get submodule CMSIS
+    - name: Pull submodule CMSIS
       run: git submodule update --init source/utilities/compiler/arm/3rd-party/CMSIS
-    - name: Build (1/2)
-      run: cmake -S${{github.workspace}}/project_vllink/vllink_bootloader_dfu/cmake_vllinklite_gd32e103 -B${{github.workspace}}/project_vllink/vllink_bootloader_dfu/cmake_vllinklite_gd32e103/build -GNinja -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-    - name: Build (2/2)
-      run: cmake --build ${{github.workspace}}/project_vllink/vllink_bootloader_dfu/cmake_vllinklite_gd32e103/build
+
+    steps:
+    - name: Build project_vllink -> vllink_bootloader_dfu -> cmake_vllinklite_gd32e103
+      working-directory: {{github.workspace}}/project_vllink/vllink_bootloader_dfu/cmake_vllinklite_gd32e103
+      run: |
+        cmake -S. -Bbuild -GNinja -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+        cmake --build ./build
+
