@@ -18,6 +18,7 @@ jobs:
       run: sudo apt-get install ninja-build
     - name: Get submodule CMSIS
       run: git submodule update --init source/utilities/compiler/arm/3rd-party/CMSIS
-    - name: Build
+    - name: Build (1/2)
       run: cmake -S${{github.workspace}}/project_vllink/vllink_bootloader_dfu/cmake_vllinklite_gd32e103 -B${{github.workspace}}/project_vllink/vllink_bootloader_dfu/cmake_vllinklite_gd32e103/build -GNinja -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+    - name: Build (2/2)
       run: cmake --build ${{github.workspace}}/project_vllink/vllink_bootloader_dfu/cmake_vllinklite_gd32e103/build
