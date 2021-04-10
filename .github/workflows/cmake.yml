@@ -14,7 +14,6 @@ jobs:
     - uses: fiam/arm-none-eabi-gcc@v1
       with:
         release: '10-2020-q4'
-    - shell: bash
     - working-directory: ${{github.workspace}}/project_vllink/vllink_bootloader_dfu/cmake_vllinklite_gd32e103
     - run: cmake -S$GITHUB_WORKSPACE -Bbuild -GNinja -DCMAKE_BUILD_TYPE=$BUILD_TYPE
 
