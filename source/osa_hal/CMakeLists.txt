@@ -5,4 +5,4 @@ target_sources(${VSF_LIB_NAME} INTERFACE
 )
 
 add_subdirectory(driver)
-#add_subdirectory(sw_peripheral)
+add_subdirectory(sw_peripheral)

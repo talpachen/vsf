@@ -23,9 +23,9 @@ set(ARCH_SUB_FOR_cortex-r4        cortex-r    )
 # TODO support cortex-a
 
 
-if(ARCH_FOR_${VSF_HAL_PROCESSOR_NAME})
-    set(ARCH_FLAG -march=${ARCH_FOR_${VSF_HAL_PROCESSOR_NAME}})
-    set(ARCH_SUB ${ARCH_SUB_FOR_${VSF_HAL_PROCESSOR_NAME}})
+if(ARCH_FOR_${VSF_ARCH_NAME})
+    set(ARCH_FLAG -march=${ARCH_FOR_${VSF_ARCH_NAME}})
+    set(ARCH_SUB ${ARCH_SUB_FOR_${VSF_ARCH_NAME}})
 endif()
 
 
