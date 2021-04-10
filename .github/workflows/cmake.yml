@@ -22,7 +22,7 @@ jobs:
       run: git submodule update --init source/utilities/compiler/arm/3rd-party/CMSIS
 
     steps:
-    - name: Build project_vllink -> vllink_bootloader_dfu -> cmake_vllinklite_gd32e103
+    - name: Build project_vllink.vllink_bootloader_dfu.cmake_vllinklite_gd32e103
       working-directory: {{github.workspace}}/project_vllink/vllink_bootloader_dfu/cmake_vllinklite_gd32e103
       run: |
         cmake -S. -Bbuild -GNinja -DCMAKE_BUILD_TYPE=$BUILD_TYPE
