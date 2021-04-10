@@ -15,5 +15,6 @@ jobs:
       with:
         release: '10-2020-q4'
     - run: sudo apt-get install ninja-build
+    - run: git submodule update --init source/utilities/compiler/arm/3rd-party/CMSIS
     - run: cmake -S${{github.workspace}}/project_vllink/vllink_bootloader_dfu/cmake_vllinklite_gd32e103 -B${{github.workspace}}/project_vllink/vllink_bootloader_dfu/cmake_vllinklite_gd32e103/build -GNinja -DCMAKE_BUILD_TYPE=$BUILD_TYPE
     - run: cmake --build ${{github.workspace}}/project_vllink/vllink_bootloader_dfu/cmake_vllinklite_gd32e103/build
