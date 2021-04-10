@@ -1,10 +1,16 @@
-name: learn-github-actions
+name: CMake
+
 on: [push]
+
+env:
+  BUILD_TYPE: Release
+
 jobs:
-  check-bats-version:
+  gcc_test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-      - run: npm install -g bats
-      - run: bats -v
+    - uses: fiam/arm-none-eabi-gcc@v1
+      with:
+        release: '10-2020q4'
+    - run: arm-none-eabi-gcc -v
