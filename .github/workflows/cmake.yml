@@ -38,8 +38,8 @@ jobs:
       run: |
         cmake -S. -Bbuild -GNinja -DCMAKE_BUILD_TYPE=$BUILD_TYPE
         cmake --build ./build
-    - name: Build project_vllink/vllink_lite/cmake_vllinklite_gd32e103
-      working-directory: ${{github.workspace}}/project_vllink/vllink_lite/cmake_vllinklite_gd32e103
+    - name: Build project_vllink/vllink_lite/cmake_vllinklite_gd32f350
+      working-directory: ${{github.workspace}}/project_vllink/vllink_lite/cmake_vllinklite_gd32f350
       run: |
         cmake -S. -Bbuild -GNinja -DCMAKE_BUILD_TYPE=$BUILD_TYPE
         cmake --build ./build
