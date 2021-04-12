@@ -1,0 +1,36 @@
+{
+	"folders": [
+		{
+			"name": "project",
+			"path": ".."
+		},
+		{
+			"name": "vsfteam_source",
+			"path": "..\\..\\..\\source"
+		},
+		{
+			"name": "private_source",
+			"path": "..\\..\\..\\private"
+		}
+	],
+	"settings": {
+		"C_Cpp.default.defines": [
+			"__GNUC__",
+		],
+		"C_Cpp.default.cStandard": "c11",
+		"C_Cpp.default.cppStandard": "c++17",
+		"C_Cpp.default.includePath": [
+			"${workspaceFolder:project}",
+			"${workspaceFolder:project}/config",
+			"${workspaceFolder:vsfteam_source}",
+			"${workspaceFolder:vsfteam_source}/utilities/compiler/arm/CMSIS/Include",
+			"${workspaceFolder:vsfteam_source}/utilities/compiler/arm/CMSIS/Core/Include",
+			"${workspaceFolder:private_source}",
+		],
+		"files.associations": {
+			"vsf.h": "c",
+			"vsf_utilities.h": "c",
+			"compiler.h": "c"
+		},
+	}
+}
