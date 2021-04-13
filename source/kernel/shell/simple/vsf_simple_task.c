@@ -169,8 +169,8 @@ vsf_evt_t __vsf_yield(void)
 
 #if VSF_KERNEL_CFG_SUPPORT_THREAD == ENABLED
     if (vsf_eda_is_stack_owner(eda)) {
-        vsf_eda_yield();
-        vsf_thread_wait();          //!< wait for any evt
+        __vsf_eda_yield();
+        vsf_thread_wfe(VSF_EVT_YIELD);
     } else
 #endif
     {
@@ -178,7 +178,7 @@ vsf_evt_t __vsf_yield(void)
             /* VSF_APP_STATE_WAIT_EVENT */
             vsf_eda_polling_state_set(eda, VSF_APP_STATE_YIELD);
         } else {
-            vsf_eda_yield();
+            __vsf_eda_yield();
             /* VSF_APP_STATE_YIELD */
             vsf_eda_polling_state_set(eda, VSF_APP_STATE_WAIT_EVENT);
             result = VSF_EVT_NONE;

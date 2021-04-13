@@ -82,11 +82,6 @@ static NO_INIT vsf_local_t __vsf_eda;
 
 /*============================ PROTOTYPES ====================================*/
 
-#if VSF_KERNEL_CFG_SUPPORT_DYNAMIC_PRIOTIRY == ENABLED
-extern vsf_err_t __vsf_eda_set_priority(vsf_eda_t *this_ptr, vsf_prio_t priority);
-extern vsf_prio_t __vsf_eda_get_cur_priority(vsf_eda_t *this_ptr);
-#endif
-
 #if __VSF_KERNEL_CFG_EVTQ_EN == ENABLED
 extern vsf_evtq_t * __vsf_os_evtq_get(vsf_prio_t priority);
 extern vsf_err_t __vsf_os_evtq_set_priority(vsf_evtq_t *this_ptr, vsf_prio_t priority);
@@ -127,7 +122,7 @@ extern void vsf_kernel_err_report(enum vsf_kernel_error_t err);
 /*============================ IMPLEMENTATION ================================*/
 
 SECTION(".text.vsf.kernel.eda")
-void vsf_eda_on_terminate(vsf_eda_t *this_ptr)
+void __vsf_eda_on_terminate(vsf_eda_t *this_ptr)
 {
 #if VSF_KERNEL_CFG_EDA_SUPPORT_ON_TERMINATE == ENABLED
     if (this_ptr->on_terminate != NULL) {
@@ -328,7 +323,7 @@ void vsf_evtq_on_eda_init(vsf_eda_t *this_ptr)
 
 void vsf_evtq_on_eda_fini(vsf_eda_t *this_ptr)
 {
-    vsf_eda_on_terminate(this_ptr);
+    __vsf_eda_on_terminate(this_ptr);
 }
 
 SECTION(".text.vsf.kernel.vsf_evtq_post_evt_ex")
@@ -458,8 +453,8 @@ bool __vsf_eda_return(uintptr_t return_value)
     }
 
     if (frame != NULL) {
-        /*! \note automatically free a frame if the top eda doesn't set 
-         *!       is_use_frame 
+        /*! \note automatically free a frame if the top eda doesn't set
+         *!       is_use_frame
          */
         {
             __vsf_eda_frame_t *frame_caller = __vsf_eda_peek_frame((vsf_slist_t *)frame);
@@ -492,8 +487,8 @@ do_return:
     return true;
 }
 
-SECTION(".text.vsf.kernel.vsf_eda_yield")
-void vsf_eda_yield(void)
+SECTION(".text.vsf.kernel.__vsf_eda_yield")
+void __vsf_eda_yield(void)
 {
     vsf_eda_t *this_ptr = vsf_eda_get_cur();
     vsf_eda_post_evt(this_ptr, VSF_EVT_YIELD);
@@ -509,7 +504,7 @@ void vsf_eda_set_user_value(uint8_t value)
 }
 
 SECTION(".text.vsf.kernel.vsf_eda_get_user_value")
-extern uint8_t vsf_eda_get_user_value(void)
+uint8_t vsf_eda_get_user_value(void)
 {
     vsf_eda_t* this_ptr = vsf_eda_get_cur();
     VSF_KERNEL_ASSERT(NULL != this_ptr);
@@ -757,7 +752,7 @@ static void __vsf_eda_fsm_evthandler(vsf_eda_t *this_ptr, vsf_evt_t evt)
             //! delay, wait_for, mutex_pend, sem_pend and etc...
             return ;
         case fsm_rt_yield:
-            vsf_eda_yield();
+            __vsf_eda_yield();
             return;
     }
 }
@@ -831,8 +826,8 @@ static void __vsf_eda_init_member(
 }
 
 SECTION(".text.vsf.kernel.eda")
-vsf_err_t __vsf_eda_init(   vsf_eda_t *this_ptr, 
-                            vsf_prio_t priority, 
+vsf_err_t __vsf_eda_init(   vsf_eda_t *this_ptr,
+                            vsf_prio_t priority,
                             vsf_eda_feature_t feature)
 {
     VSF_KERNEL_ASSERT(this_ptr != NULL);

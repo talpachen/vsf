@@ -332,7 +332,7 @@ vsf_err_t vsf_eda_bmpevt_set(vsf_bmpevt_t *this_ptr, uint_fast32_t mask)
 }
 
 SECTION(".text.vsf.kernel.vsf_eda_bmpevt_pend")
-vsf_err_t vsf_eda_bmpevt_pend(vsf_bmpevt_t *this_ptr, vsf_bmpevt_pender_t *pender, int_fast32_t timeout)
+vsf_err_t vsf_eda_bmpevt_pend(vsf_bmpevt_t *this_ptr, vsf_bmpevt_pender_t *pender, vsf_timeout_tick_t timeout)
 {
     vsf_protect_t orig;
     vsf_eda_t *eda;
@@ -377,12 +377,16 @@ vsf_err_t vsf_eda_bmpevt_pend(vsf_bmpevt_t *this_ptr, vsf_bmpevt_pender_t *pende
 #endif
 
 SECTION(".text.vsf.kernel.vsf_eda_bmpevt_poll")
-vsf_sync_reason_t vsf_eda_bmpevt_poll(vsf_bmpevt_t *this_ptr, vsf_bmpevt_pender_t *pender, vsf_evt_t evt)
+vsf_sync_reason_t vsf_eda_bmpevt_poll(  vsf_bmpevt_t *this_ptr, 
+                                        vsf_bmpevt_pender_t *pender, 
+                                        vsf_evt_t evt)
 {
     vsf_sync_reason_t reason = VSF_SYNC_FAIL;
     vsf_eda_t *eda;
 
-    VSF_KERNEL_ASSERT((this_ptr != NULL) && (pender != NULL) && (pender->eda_pending == vsf_eda_get_cur()));
+    VSF_KERNEL_ASSERT(  (this_ptr != NULL) 
+                    &&  (pender != NULL) 
+                    &&  (pender->eda_pending == vsf_eda_get_cur()));
     eda = pender->eda_pending;
 
 #if VSF_KERNEL_CFG_EDA_SUPPORT_TIMER == ENABLED

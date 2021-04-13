@@ -88,7 +88,6 @@ void __vsf_eda_return_to_thread(vsf_eda_t *eda)
     if (cb->ret != NULL) {
         longjmp(*(cb->pos), VSF_EVT_RETURN);
     } else {
-        extern void __vsf_dispatch_evt(vsf_eda_t *this_ptr, vsf_evt_t evt);
         __vsf_dispatch_evt(eda, VSF_EVT_RETURN);
     }
 }
@@ -140,7 +139,7 @@ vsf_evt_t vsf_thread_wait(void)
 #    ifdef VSF_ARCH_LIMIT_NO_SET_STACK
     __vsf_arch_irq_request_send(pthis->rep);
     __vsf_arch_irq_request_pend(&pthis->req);
-    cur_evt = pthis->evt;
+    curevt = pthis->evt;
 #    else
     jmp_buf pos;
 
@@ -159,7 +158,10 @@ vsf_evt_t vsf_thread_wait(void)
 SECTION(".text.vsf.kernel.vsf_thread_wait_for_evt")
 void vsf_thread_wait_for_evt(vsf_evt_t evt)
 {
-    while(evt != vsf_thread_wait());
+    vsf_evt_t rcv_evt = vsf_thread_wait();
+    /*! \note make sure there is no message ignored */
+    VSF_KERNEL_ASSERT( rcv_evt == evt);
+    //while(evt != vsf_thread_wait());
 }
 
 #if VSF_KERNEL_CFG_SUPPORT_EVT_MESSAGE == ENABLED
@@ -530,7 +532,7 @@ fsm_rt_t vk_thread_call_fsm(vsf_fsm_entry_t eda_handler, uintptr_t param, size_t
     while (1) {
         ret = __vsf_eda_call_fsm(eda_handler, param, local_size);
         if (fsm_rt_on_going == ret) {
-            vsf_eda_yield();
+            __vsf_eda_yield();
         } else {
             break;
         }
@@ -575,6 +577,25 @@ void vsf_thread_delay(uint_fast32_t tick)
 }
 #endif
 
+#if VSF_KERNEL_CFG_SUPPORT_DYNAMIC_PRIOTIRY == ENABLED
+SECTION(".text.vsf.kernel.vsf_thread_set_priority")
+vsf_prio_t vsf_thread_set_priority(vsf_prio_t priority)
+{
+    vsf_thread_t *thread_obj = vsf_thread_get_cur();
+    vsf_prio_t orig_prio = __vsf_eda_get_cur_priority(&thread_obj->use_as__vsf_eda_t);
+
+    if (orig_prio != priority) {
+        __vsf_eda_set_priority(&thread_obj->use_as__vsf_eda_t, priority);
+        thread_obj->priority = priority;
+
+        // post and wait event, after new event is received, thread is on evtq with new priority
+        __vsf_eda_yield();
+        vsf_thread_wfe(VSF_EVT_YIELD);
+    }
+    return orig_prio;
+}
+#endif
+
 #if VSF_KERNEL_CFG_SUPPORT_SYNC == ENABLED
 
 SECTION(".text.vsf.kernel.__vsf_thread_wait_for_sync")
@@ -588,6 +609,10 @@ static vsf_sync_reason_t __vsf_thread_wait_for_sync(vsf_sync_t *sync, int_fast32
     else if (err < 0) { return VSF_SYNC_FAIL; }
     else if (time_out != 0) {
         do {
+            /*! \note there is a VSF_ASSERT() in __vsf_eda_sync_get_reason, which
+             *!       validated the evt value. Hence, there is no need to assert
+             *!       the evt value here.
+             */
             reason = vsf_eda_sync_get_reason(sync, vsf_thread_wait());
         } while (reason == VSF_SYNC_PENDING);
         return reason;
@@ -638,11 +663,15 @@ vsf_sync_reason_t vsf_thread_bmpevt_pend(
     vsf_evt_t evt;
 
     err = vsf_eda_bmpevt_pend(bmpevt, pender, timeout);
-    if (!err) { return VSF_SYNC_GET; }
-    else if (err < 0) { return VSF_SYNC_FAIL; }
-    else if (timeout != 0) {
+    if (!err) { return VSF_SYNC_GET;
+    } else if (err < 0) { return VSF_SYNC_FAIL;
+    } else if (timeout != 0) {
         while (1) {
             evt = vsf_thread_wait();
+            /*! \note there is a VSF_ASSERT() in vsf_eda_bmpevt_poll, which
+             *!       validated the evt value. Hence, there is no need to assert
+             *!       the evt value here.
+             */
             reason = vsf_eda_bmpevt_poll(bmpevt, pender, evt);
             if (reason != VSF_SYNC_PENDING) {
                 return reason;
