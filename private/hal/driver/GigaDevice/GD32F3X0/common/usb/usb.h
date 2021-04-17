@@ -54,7 +54,7 @@ typedef struct gd32f3x0_usb_const_t gd32f3x0_usb_const_t;
 struct gd32f3x0_usb_t {
     bool is_host;
     struct {
-        usb_ip_irq_handler_t irq_handler;
+        usb_ip_irqhandler_t irqhandler;
         void *param;
     } callback;
     const gd32f3x0_usb_const_t *param;

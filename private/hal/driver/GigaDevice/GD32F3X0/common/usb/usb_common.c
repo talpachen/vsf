@@ -90,8 +90,8 @@ RCU_CFG0 &= ~RCU_CFG0_USBFSPSC;
 
 void gd32f3x0_usb_irq(gd32f3x0_usb_t *usb)
 {
-    if (usb->callback.irq_handler != NULL) {
-        usb->callback.irq_handler(usb->callback.param);
+    if (usb->callback.irqhandler != NULL) {
+        usb->callback.irqhandler(usb->callback.param);
     }
 }
 

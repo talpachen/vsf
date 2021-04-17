@@ -319,7 +319,7 @@ static uint16_t request_handler(dap_param_t* param, uint8_t* request,
                 response[resp_ptr++] = DAP_OK;
                 break;
             case ID_DAP_Delay: {
-                vsf_systimer_cnt_t tick = vsf_systimer_get_tick() + vsf_systimer_us_to_tick(get_unaligned_le16(request + req_ptr));
+                vsf_systimer_tick_t tick = vsf_systimer_get_tick() + vsf_systimer_us_to_tick(get_unaligned_le16(request + req_ptr));
                 req_ptr += 2;
                 while (tick > vsf_systimer_get_tick());
                 response[resp_ptr++] = DAP_OK;
