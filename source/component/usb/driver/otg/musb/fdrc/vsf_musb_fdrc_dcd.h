@@ -68,13 +68,14 @@ def_simple_class(vk_musb_fdrc_dcd_t) {
     private_member(
         void *reg;
         struct {
-            usb_dc_evt_handler_t evt_handler;
+            usb_dc_evthandler_t evthandler;
             void *param;
         } callback;
         uint16_t ep_buf_ptr;
         uint16_t out_mask;
         uint16_t control_size;
         bool is_control_in;
+        bool is_last_control_in;
         vk_musb_fdrc_dcd_ep0state_t ep0_state;
         uint8_t ep_num;
         bool is_dma;
