@@ -24,8 +24,7 @@
 
 #if VSF_USE_USB_DEVICE == ENABLED || VSF_USE_USB_HOST == ENABLED
 
-//#include "hal/interface/vsf_interface_pm.h"
-#include "hal/interface/vsf_interface_usb.h"
+#include "hal/driver/common/template/vsf_template_usb.h"
 
 // for vk_dwcotg_hw_info_t
 #include "component/usb/driver/otg/dwcotg/vsf_dwcotg_hw.h"
