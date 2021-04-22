@@ -973,6 +973,15 @@
     <Filter Include="usrapp\demo\distbus_demo\bus">
       <UniqueIdentifier>{3494a736-be68-4321-ab4d-ad6707f8d9fc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="usrapp\demo\distbus_demo\app">
+      <UniqueIdentifier>{9e0a303d-c725-41f6-ba6a-d0cb174c5f87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vsf\component\3rd-party\lua\port">
+      <UniqueIdentifier>{292b3732-6c3c-459f-b1e3-57307be0ef8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vsf\shell\sys\linux\lib\libgen">
+      <UniqueIdentifier>{ef83993e-2d4d-4384-b4f6-aca89f84be43}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\source\vsf.h">
@@ -2166,9 +2175,6 @@
     <ClInclude Include="..\..\..\..\source\component\ui\disp\driver\vga\m480\vsf_disp_vga_m480.h">
       <Filter>vsf\component\ui\disp\driver\vga\m480</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\source\utilities\preprocessor\vsf_connect.h">
-      <Filter>vsf\utilities\preprocessor</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\source\utilities\compiler\compiler.h">
       <Filter>vsf\utilities\compiler</Filter>
     </ClInclude>
@@ -2459,9 +2465,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\source\component\3rd-party\lua\extension\oo\lua_oo.h">
       <Filter>vsf\component\3rd-party\lua\extension\oo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\source\utilities\preprocessor\vsf_foreach.h">
-      <Filter>vsf\utilities\preprocessor</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\source\component\usb\device\class\HID\vsf_usbd_HID_desc.h">
       <Filter>vsf\component\usb\device\class\HID</Filter>
@@ -2897,6 +2900,24 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\source\component\usb\driver\dcd\distbus_dcd\vsf_distbus_dcd.h">
       <Filter>vsf\component\usb\driver\dcd\distbus_dcd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\source\utilities\preprocessor\vsf_connect_macro.h">
+      <Filter>vsf\utilities\preprocessor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\source\utilities\preprocessor\vsf_foreach_macro.h">
+      <Filter>vsf\utilities\preprocessor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\source\utilities\preprocessor\vsf_repeat_macro.h">
+      <Filter>vsf\utilities\preprocessor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\libgen.h">
+      <Filter>vsf\shell\sys\linux\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\sys\ipc.h">
+      <Filter>vsf\shell\sys\linux\include\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\sys\shm.h">
+      <Filter>vsf\shell\sys\linux\include\sys</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -4912,6 +4933,15 @@
     </ClCompile>
     <ClCompile Include="..\..\demo\distbus_demo\bus\distbus_usart.c">
       <Filter>usrapp\demo\distbus_demo\bus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\demo\distbus_demo\app\distbus_usbd.c">
+      <Filter>usrapp\demo\distbus_demo\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\source\component\3rd-party\lua\port\lua_port.c">
+      <Filter>vsf\component\3rd-party\lua\port</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\source\shell\sys\linux\lib\libgen\vsf_linux_libgen.c">
+      <Filter>vsf\shell\sys\linux\lib\libgen</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

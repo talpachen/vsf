@@ -4546,7 +4546,6 @@
                     <state>CFG_IPERF</state>
                     <state>CFG_WIFI_ROM_VER=2</state>
                     <state>LWIP_NO_STDINT_H=1</state>
-                    <state>__vsf_linux_ctype=_ctype_</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -5632,6 +5631,12 @@
             </group>
             <group>
                 <name>distbus_demo</name>
+                <group>
+                    <name>app</name>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\demo\distbus_demo\app\distbus_usbd.c</name>
+                    </file>
+                </group>
                 <group>
                     <name>bus</name>
                     <file>
@@ -6917,6 +6922,12 @@
                         </group>
                     </group>
                     <group>
+                        <name>port</name>
+                        <file>
+                            <name>$PROJ_DIR$\..\..\..\..\source\component\3rd-party\lua\port\lua_port.c</name>
+                        </file>
+                    </group>
+                    <group>
                         <name>raw</name>
                         <file>
                             <name>$PROJ_DIR$\..\..\..\..\source\component\3rd-party\lua\raw\lapi.c</name>
@@ -7755,7 +7766,6 @@
                 <group>
                     <name>lwip</name>
                     <excluded>
-                        <configuration>vsf_template_m484</configuration>
                         <configuration>vsf_template_gd32e103</configuration>
                         <configuration>vsf_template_mt071</configuration>
                         <configuration>vsf_template_aic8800</configuration>
@@ -9858,6 +9868,15 @@
                             <group>
                                 <name>lwip</name>
                                 <group>
+                                    <name>dhcps</name>
+                                    <file>
+                                        <name>$PROJ_DIR$\..\..\..\..\source\hal\driver\AIC\AIC8800\vendor\lwip\dhcps\dhcps.c</name>
+                                    </file>
+                                    <file>
+                                        <name>$PROJ_DIR$\..\..\..\..\source\hal\driver\AIC\AIC8800\vendor\lwip\dhcps\dhcps.h</name>
+                                    </file>
+                                </group>
+                                <group>
                                     <name>lwip-STABLE-2_0_2</name>
                                     <group>
                                         <name>ports</name>
@@ -10876,6 +10895,27 @@
                         </file>
                     </group>
                     <group>
+                        <name>template</name>
+                        <file>
+                            <name>$PROJ_DIR$\..\..\..\..\source\hal\driver\common\template\vsf_template_hal_driver.h</name>
+                        </file>
+                        <file>
+                            <name>$PROJ_DIR$\..\..\..\..\source\hal\driver\common\template\vsf_template_io.h</name>
+                        </file>
+                        <file>
+                            <name>$PROJ_DIR$\..\..\..\..\source\hal\driver\common\template\vsf_template_pm.h</name>
+                        </file>
+                        <file>
+                            <name>$PROJ_DIR$\..\..\..\..\source\hal\driver\common\template\vsf_template_spi.h</name>
+                        </file>
+                        <file>
+                            <name>$PROJ_DIR$\..\..\..\..\source\hal\driver\common\template\vsf_template_usart.h</name>
+                        </file>
+                        <file>
+                            <name>$PROJ_DIR$\..\..\..\..\source\hal\driver\common\template\vsf_template_usb.h</name>
+                        </file>
+                    </group>
+                    <group>
                         <name>usart</name>
                         <file>
                             <name>$PROJ_DIR$\..\..\..\..\source\hal\driver\common\usart\__usart_common.h</name>
@@ -11528,6 +11568,12 @@
                     <group>
                         <name>MT071</name>
                         <group>
+                            <name>pm</name>
+                            <file>
+                                <name>$PROJ_DIR$\..\..\..\..\source\hal\driver\unknown\MT071\pm\pm.h</name>
+                            </file>
+                        </group>
+                        <group>
                             <name>usart</name>
                             <file>
                                 <name>$PROJ_DIR$\..\..\..\..\source\hal\driver\unknown\MT071\usart\usart.c</name>
@@ -11691,27 +11737,6 @@
                 </group>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\source\hal\driver\driver.h</name>
-                </file>
-            </group>
-            <group>
-                <name>interface</name>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\source\hal\interface\vsf_interface_common.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\source\hal\interface\vsf_interface_io.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\source\hal\interface\vsf_interface_pm.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\source\hal\interface\vsf_interface_spi.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\source\hal\interface\vsf_interface_usart.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\source\hal\interface\vsf_interface_usb.h</name>
                 </file>
             </group>
             <file>
@@ -12250,7 +12275,13 @@
                         <group>
                             <name>sys</name>
                             <file>
+                                <name>$PROJ_DIR$\..\..\..\..\source\shell\sys\linux\include\sys\ipc.h</name>
+                            </file>
+                            <file>
                                 <name>$PROJ_DIR$\..\..\..\..\source\shell\sys\linux\include\sys\mount.h</name>
+                            </file>
+                            <file>
+                                <name>$PROJ_DIR$\..\..\..\..\source\shell\sys\linux\include\sys\shm.h</name>
                             </file>
                             <file>
                                 <name>$PROJ_DIR$\..\..\..\..\source\shell\sys\linux\include\sys\stat.h</name>
@@ -12270,6 +12301,9 @@
                         </file>
                         <file>
                             <name>$PROJ_DIR$\..\..\..\..\source\shell\sys\linux\include\fcntl.h</name>
+                        </file>
+                        <file>
+                            <name>$PROJ_DIR$\..\..\..\..\source\shell\sys\linux\include\libgen.h</name>
                         </file>
                         <file>
                             <name>$PROJ_DIR$\..\..\..\..\source\shell\sys\linux\include\libusb.h</name>
@@ -12326,6 +12360,12 @@
                             </file>
                             <file>
                                 <name>$PROJ_DIR$\..\..\..\..\source\shell\sys\linux\lib\glibc\vsf_linux_glibc_time.c</name>
+                            </file>
+                        </group>
+                        <group>
+                            <name>libgen</name>
+                            <file>
+                                <name>$PROJ_DIR$\..\..\..\..\source\shell\sys\linux\lib\libgen\vsf_linux_libgen.c</name>
                             </file>
                         </group>
                         <group>
@@ -12404,6 +12444,15 @@
                 <name>compiler</name>
                 <group>
                     <name>__common</name>
+                    <group>
+                        <name>__retarget_io</name>
+                        <file>
+                            <name>$PROJ_DIR$\..\..\..\..\source\utilities\compiler\__common\__retarget_io\__retarget_io_gcc_llvm.c</name>
+                        </file>
+                        <file>
+                            <name>$PROJ_DIR$\..\..\..\..\source\utilities\compiler\__common\__retarget_io\__retarget_io_iar.c</name>
+                        </file>
+                    </group>
                     <file>
                         <name>$PROJ_DIR$\..\..\..\..\source\utilities\compiler\__common\__compiler.h</name>
                     </file>
@@ -12451,16 +12500,19 @@
                     <name>$PROJ_DIR$\..\..\..\..\source\utilities\preprocessor\mf_u8_dec2str.h</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\..\..\..\source\utilities\preprocessor\vsf_connect.h</name>
+                    <name>$PROJ_DIR$\..\..\..\..\source\utilities\preprocessor\vsf_connect_macro.h</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\..\..\..\source\utilities\preprocessor\vsf_foreach.h</name>
+                    <name>$PROJ_DIR$\..\..\..\..\source\utilities\preprocessor\vsf_foreach_macro.h</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\source\utilities\preprocessor\vsf_macro_calc.h</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\source\utilities\preprocessor\vsf_preprocessor.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\source\utilities\preprocessor\vsf_repeat_macro.h</name>
                 </file>
             </group>
             <group>

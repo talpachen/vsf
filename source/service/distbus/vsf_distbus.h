@@ -64,7 +64,6 @@ def_simple_class(vsf_distbus_msg_t) {
         };
     )
     public_member(
-        uint32_t                            buffer_size;
         vsf_distbus_msgheader_t             header;
     )
 };
@@ -88,7 +87,7 @@ def_simple_class(vsf_distbus_service_t) {
 };
 
 typedef struct vsf_distbus_bus_op_t {
-    void (*init)(void);
+    bool (*init)(void *p, void (*on_inited)(void *p));
     // returns true if sent
     bool (*send)(uint8_t *buffer, uint_fast32_t size, void *p, void (*on_sent)(void *p));
     // returns true if received
@@ -119,6 +118,7 @@ def_simple_class(vsf_distbus_t) {
         vsf_distbus_msg_t                   *msg_tx;
         vsf_slist_t                         msg_tx_list;
         vsf_slist_t                         service_list;
+        uint16_t                            cur_addr;
     )
 };
 

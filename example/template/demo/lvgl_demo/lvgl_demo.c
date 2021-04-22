@@ -43,6 +43,24 @@
 /*============================ PROTOTYPES ====================================*/
 /*============================ IMPLEMENTATION ================================*/
 
+static lv_coord_t __lvgl_touchscreen_get_width(void)
+{
+#   ifndef LV_HOR_RES_MAX
+    return usrapp_ui_common.disp->param.width;
+#   else
+    return LV_HOR_RES_MAX;
+#   endif
+}
+
+static lv_coord_t __lvgl_touchscreen_get_height(void)
+{
+#   ifndef LV_VER_RES_MAX
+    return usrapp_ui_common.disp->param.height;
+#   else
+    return LV_VER_RES_MAX;
+#   endif
+}
+
 static void __lvgl_on_evt(vk_input_type_t type, vk_input_evt_t *evt)
 {
     switch (type) {
@@ -89,8 +107,8 @@ static bool __lvgl_touchscreen_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *
     data->state = vsf_input_touchscreen_is_down(ts_evt) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
 
 #if APP_LVGL_DEMO_CFG_TOUCH_REMAP == ENABLED
-    data->point.x = vsf_input_touchscreen_get_x(ts_evt) * LV_HOR_RES_MAX / ts_evt->info.width;
-    data->point.y = vsf_input_touchscreen_get_y(ts_evt) * LV_VER_RES_MAX / ts_evt->info.height;
+    data->point.x = vsf_input_touchscreen_get_x(ts_evt) * __lvgl_touchscreen_get_width() / ts_evt->info.width;
+    data->point.y = vsf_input_touchscreen_get_y(ts_evt) * __lvgl_touchscreen_get_height() / ts_evt->info.height;
 #else
     data->point.x = vsf_input_touchscreen_get_x(ts_evt);
     data->point.y = vsf_input_touchscreen_get_y(ts_evt);
@@ -262,13 +280,14 @@ int VSF_USER_ENTRY(void)
 #   endif
 #endif
 
-    if (NULL == usrapp_ui_common.disp) {
+    vk_disp_t *vsf_disp = usrapp_ui_common.disp;
+    if (NULL == vsf_disp) {
         return -1;
     }
 
-    if (usrapp_ui_common.disp->param.color != VSF_DISP_COLOR_RGB565) {
+    if (vsf_disp->param.color != VSF_DISP_COLOR_RGB565) {
         // insecure operation
-        ((vk_disp_param_t *)&usrapp_ui_common.disp->param)->color = VSF_DISP_COLOR_RGB565;
+        ((vk_disp_param_t *)&vsf_disp->param)->color = VSF_DISP_COLOR_RGB565;
     }
 
 #   if USE_LV_LOG
@@ -291,13 +310,13 @@ int VSF_USER_ENTRY(void)
                         APP_LVGL_DEMO_CFG_PIXEL_BUFFER_SIZE);
     lv_disp_drv_init(&disp_drv);
 
-    disp_drv.hor_res = LV_HOR_RES_MAX;
-    disp_drv.ver_res = LV_VER_RES_MAX;
-    disp_drv.flush_cb = vsf_lvgl_disp_flush;
+    disp_drv.hor_res = __lvgl_touchscreen_get_width();
+    disp_drv.ver_res = __lvgl_touchscreen_get_height();
+    disp_drv.flush_cb = vsf_lvgl_flush_disp;
     disp_drv.buffer = &usrapp_ui_common.lvgl.disp_buf;
     disp = lv_disp_drv_register(&disp_drv);
 
-    vsf_lvgl_disp_bind(usrapp_ui_common.disp, &disp->driver);
+    vsf_lvgl_bind_disp(vsf_disp, &disp->driver);
 
     lv_indev_drv_init(&indev_drv);
     indev_drv.type = LV_INDEV_TYPE_POINTER;

@@ -41,65 +41,69 @@
 #   define __FHOST_IPC_IRQ_PRIO             0
 #endif
 
+#if VSF_KERNEL_CFG_SUPPORT_DYNAMIC_PRIOTIRY != ENABLED
+#   error current demo need VSF_KERNEL_CFG_SUPPORT_DYNAMIC_PRIOTIRY, if it's not supported\
+    please make sure wlan_start_sta is called in task with priority higher than(>) vsf_prio_2
+#endif
+
 /*============================ MACROFIED FUNCTIONS ===========================*/
 /*============================ TYPES =========================================*/
 /*============================ GLOBAL VARIABLES ==============================*/
 
 struct rwnx_hw hw_env;
+uint8_t is_ap;
 
 /*============================ LOCAL VARIABLES ===============================*/
 /*============================ PROTOTYPES ====================================*/
 
-#if VSF_KERNEL_CFG_SUPPORT_DYNAMIC_PRIOTIRY != ENABLED
-#   error current demo need VSF_KERNEL_CFG_SUPPORT_DYNAMIC_PRIOTIRY, if it's not supported\
-    please make sure wlan_start_sta is called in task with priority higher than(>) vsf_prio_2
-#endif
-extern vsf_err_t __vsf_eda_set_priority(vsf_eda_t *this_ptr, vsf_prio_t priority);
-extern vsf_prio_t __vsf_eda_get_cur_priority(vsf_eda_t *this_ptr);
+extern void set_mac_address(uint8_t *addr);
 
 /*============================ IMPLEMENTATION ================================*/
 
-static int __wifi_scan_main(int argc, char *argv[])
+static int __wifi_ap_main(int argc, char *argv[])
 {
-    struct fhost_vif_tag *fhost_vif = &fhost_env.vif[0];
-
-    for (int idx = 0; idx < NX_VIRT_DEV_MAX; idx++, fhost_vif++) {
-        uint8_t mac_addr1 = fhost_vif->mac_addr.array[0] >> 8;
-        uint32_t ip_mask = 0x00FFFFFF;
-        uint32_t ip_addr = (192 | (168 << 8) | ((241 + idx) << 16) | ((70 + mac_addr1) << 24));
-
-        net_if_set_ip(&fhost_vif->net_if, ip_addr, ip_mask, 0);
-    }
-
-    fhost_vif = &fhost_env.vif[0];
-
-    //set_mac_address();
-    ipc_host_cntrl_start();
-
-    struct mm_add_if_cfm add_if_cfm;
-    rwnx_send_add_if((unsigned char *)&(fhost_vif->mac_addr.array), VIF_STA, 0, &add_if_cfm);
-
-    //dbg("vif_init %d, %d\r\n", add_if_cfm.status, add_if_cfm.inst_nbr);
-    vif_info_tab[add_if_cfm.inst_nbr].active = true;
-    vif_info_tab[add_if_cfm.inst_nbr].type = VIF_STA;
-    fhost_vif->mac_vif = &vif_info_tab[add_if_cfm.inst_nbr];
-    fhost_env.mac2fhost_vif[add_if_cfm.inst_nbr] = fhost_vif;
-    MAC_ADDR_CPY(&(vif_info_tab[add_if_cfm.inst_nbr].mac_addr), &(fhost_vif->mac_addr));
-
-    struct fhost_cntrl_link *cntrl_link = fhost_cntrl_cfgrwnx_link_open();
-    if (cntrl_link == NULL) {
-        vsf_trace_error("Failed to open link with control task\r\n");
+    if (argc < 2) {
+        printf("format: %s SSID [PASSWD]\r\n", argv[0]);
         return -1;
     }
 
-    int nb_res = fhost_scan(cntrl_link, 0, NULL);
-    vsf_trace_info("Got %d scan results\r\n", nb_res);
+    char *ssid = argv[1], *pass = argc > 2 ? argv[2] : "";
+    is_ap = true;
+    set_mac_address(NULL);
+    int ret = wlan_start_ap(0, (uint8_t *)ssid, (uint8_t *)pass);
+    if (!ret) {
+        printf("wifi ap started.\r\n");
+    } else {
+        printf("fail to start wifi ap.\r\n");
+    }
+    return 0;
+}
+
+static int __wifi_scan_main(int argc, char *argv[])
+{
+    int fhost_vif_idx = 0;
+    ipc_host_cntrl_start();
+
+    struct fhost_cntrl_link *cntrl_link = fhost_cntrl_cfgrwnx_link_open();
+    if (cntrl_link == NULL) {
+        printf("fail to open link\r\n");
+        return -1;
+    }
+    if (fhost_set_vif_type(cntrl_link, fhost_vif_idx, VIF_UNKNOWN, false) ||
+        fhost_set_vif_type(cntrl_link, fhost_vif_idx, VIF_STA, false)) {
+        fhost_cntrl_cfgrwnx_link_close(cntrl_link);
+        printf("fail to set link type to sta\r\n");
+        return -1;
+   }
+
+    int nb_res = fhost_scan(cntrl_link, fhost_vif_idx, NULL);
+    printf("%d scan results:\r\n", nb_res);
 
     nb_res = 0;
     struct mac_scan_result result;
     while (fhost_get_scan_results(cntrl_link, nb_res++, 1, &result)) {
         result.ssid.array[result.ssid.length] = '\0'; // set ssid string ending
-        vsf_trace_info("(%3d dBm) CH=%3d BSSID=%02x:%02x:%02x:%02x:%02x:%02x SSID=%s\r\n",
+        printf("(%3d dBm) CH=%3d BSSID=%02x:%02x:%02x:%02x:%02x:%02x SSID=%s\r\n",
             (int8_t)result.rssi, phy_freq_to_channel(result.chan->band, result.chan->freq),
             ((uint8_t *)result.bssid.array)[0], ((uint8_t *)result.bssid.array)[1],
             ((uint8_t *)result.bssid.array)[2], ((uint8_t *)result.bssid.array)[3],
@@ -118,33 +122,24 @@ static int __wifi_connect_main(int argc, char *argv[])
         return -1;
     }
 
-    if (!wlan_connected) {
-        char *ssid = argv[1], *pass = argc >= 3 ? argv[2] : "";
+    if (wlan_connected) {
+        printf("wlan already connected\r\n");
+        return -1;
+    }
 
-#if PLF_HW_PXP
-        rtos_task_suspend(5);   // wait for AP starting
-#endif
-
-        // wlan_start_sta MUST be called with higher priority than internal wpa(vsf_prio_0).
-        vsf_prio_t prio = vsf_thread_set_priority(vsf_prio_1);
+    char *ssid = argv[1], *pass = argc >= 3 ? argv[2] : "";
+    is_ap = false;
+    set_mac_address(NULL);
+    // wlan_start_sta MUST be called with higher priority than internal wpa(vsf_prio_0).
+    vsf_prio_t prio = vsf_thread_set_priority(vsf_prio_1);
         int ret = wlan_start_sta((uint8_t *)ssid, (uint8_t *)pass, 0);
-        vsf_thread_set_priority(prio);
-        wlan_connected = 0 == ret ? 1 : 0;
+    vsf_thread_set_priority(prio);
 
-#if CONFIG_SLEEP_LEVEL == 1
-        sleep_level_set(PM_LEVEL_LIGHT_SLEEP);
-#elif CONFIG_SLEEP_LEVEL == 2
-        sleep_level_set(PM_LEVEL_DEEP_SLEEP);
-#elif CONFIG_SLEEP_LEVEL == 3
-        sleep_level_set(PM_LEVEL_HIBERNATE);
-#endif
-        user_sleep_allow(1);
-
-        if (wlan_connected) {
-            printf("wifi connected.\r\n");
-        } else {
-            printf("fail to connect %s.\r\n", argv[1]);
-        }
+    wlan_connected = 0 == ret ? 1 : 0;
+    if (wlan_connected) {
+        printf("wifi connected.\r\n");
+    } else {
+        printf("fail to connect %s.\r\n", argv[1]);
     }
 
     return 0;
@@ -163,6 +158,7 @@ static int __iperf_main(int argc, char *argv[])
 
 int fhost_application_init(void)
 {
+    busybox_bind("/sbin/wifi_ap", __wifi_ap_main);
     busybox_bind("/sbin/wifi_scan", __wifi_scan_main);
     busybox_bind("/sbin/wifi_connect", __wifi_connect_main);
     busybox_bind("/sbin/iperf", __iperf_main);

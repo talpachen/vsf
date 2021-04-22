@@ -562,6 +562,7 @@
     <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\dirent.h" />
     <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\errno.h" />
     <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\fcntl.h" />
+    <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\libgen.h" />
     <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\libusb.h" />
     <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\linux\limits.h" />
     <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\poll.h" />
@@ -575,8 +576,10 @@
     <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\simple_libc\string.h" />
     <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\simple_libc\time.h" />
     <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\simple_libc\wchar.h" />
+    <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\sys\ipc.h" />
     <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\sys\mount.h" />
     <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\sys\select.h" />
+    <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\sys\shm.h" />
     <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\sys\stat.h" />
     <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\sys\time.h" />
     <ClInclude Include="..\..\..\..\source\shell\sys\linux\include\sys\types.h" />
@@ -616,10 +619,11 @@
     <ClInclude Include="..\..\..\..\source\utilities\language_extension\language_extension.h" />
     <ClInclude Include="..\..\..\..\source\utilities\ooc_class.h" />
     <ClInclude Include="..\..\..\..\source\utilities\preprocessor\mf_u8_dec2str.h" />
-    <ClInclude Include="..\..\..\..\source\utilities\preprocessor\vsf_connect.h" />
-    <ClInclude Include="..\..\..\..\source\utilities\preprocessor\vsf_foreach.h" />
+    <ClInclude Include="..\..\..\..\source\utilities\preprocessor\vsf_connect_macro.h" />
+    <ClInclude Include="..\..\..\..\source\utilities\preprocessor\vsf_foreach_macro.h" />
     <ClInclude Include="..\..\..\..\source\utilities\preprocessor\vsf_macro_calc.h" />
     <ClInclude Include="..\..\..\..\source\utilities\preprocessor\vsf_preprocessor.h" />
+    <ClInclude Include="..\..\..\..\source\utilities\preprocessor\vsf_repeat_macro.h" />
     <ClInclude Include="..\..\..\..\source\utilities\template\template.h" />
     <ClInclude Include="..\..\..\..\source\utilities\template\vsf_bitmap.h" />
     <ClInclude Include="..\..\..\..\source\utilities\template\vsf_list.h" />
@@ -822,6 +826,7 @@
     <ClCompile Include="..\..\..\..\source\component\3rd-party\libpng\raw\pngwrite.c" />
     <ClCompile Include="..\..\..\..\source\component\3rd-party\libpng\raw\pngwtran.c" />
     <ClCompile Include="..\..\..\..\source\component\3rd-party\libpng\raw\pngwutil.c" />
+    <ClCompile Include="..\..\..\..\source\component\3rd-party\lua\port\lua_port.c" />
     <ClCompile Include="..\..\..\..\source\component\3rd-party\lvgl\extension\lv_lib_freetype\raw\lv_freetype.c" />
     <ClCompile Include="..\..\..\..\source\component\3rd-party\lvgl\port\vsf_lvgl_port.c" />
     <ClCompile Include="..\..\..\..\source\component\3rd-party\lvgl\raw\lvgl\src\lv_core\lv_disp.c" />
@@ -1253,6 +1258,7 @@
     <ClCompile Include="..\..\..\..\source\shell\sys\linux\lib\glibc\vsf_linux_glibc_stdlib.c" />
     <ClCompile Include="..\..\..\..\source\shell\sys\linux\lib\glibc\vsf_linux_glibc_string.c" />
     <ClCompile Include="..\..\..\..\source\shell\sys\linux\lib\glibc\vsf_linux_glibc_time.c" />
+    <ClCompile Include="..\..\..\..\source\shell\sys\linux\lib\libgen\vsf_linux_libgen.c" />
     <ClCompile Include="..\..\..\..\source\shell\sys\linux\lib\libusb\vsf_linux_libusb.c" />
     <ClCompile Include="..\..\..\..\source\shell\sys\linux\port\busybox\busybox.c" />
     <ClCompile Include="..\..\..\..\source\shell\sys\linux\port\busybox\shell\vsh.c" />
@@ -1281,6 +1287,7 @@
     <ClCompile Include="..\..\demo\common\usrapp_usbh_common.c" />
     <ClCompile Include="..\..\demo\cpp_demo\cpp_demo.cpp" />
     <ClCompile Include="..\..\demo\disp_demo\disp_demo.c" />
+    <ClCompile Include="..\..\demo\distbus_demo\app\distbus_usbd.c" />
     <ClCompile Include="..\..\demo\distbus_demo\bus\distbus_lwip.c" />
     <ClCompile Include="..\..\demo\distbus_demo\bus\distbus_usart.c" />
     <ClCompile Include="..\..\demo\distbus_demo\distbus_demo.c" />
