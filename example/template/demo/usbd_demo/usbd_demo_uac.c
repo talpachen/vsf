@@ -459,13 +459,13 @@ static usbd_uac_t __user_usbd_uac = {
             .entity             = __user_usbd_uac.usbd.uac.entity,
         },
         .uac.as_param[0]        = {
-            .ep                 = 0x83,
+            .ep                 = 0x82,
             .packet_size        = 96,
             .uac_ac             = &__user_usbd_uac.usbd.uac.ac_param,
             .stream             = &__user_usbd_uac_tx_stream.use_as__vsf_stream_t,
         },
         .uac.as_param[1]        = {
-            .ep                 = 0x04,
+            .ep                 = 0x01,
             .packet_size        = 192,
             .uac_ac             = &__user_usbd_uac.usbd.uac.ac_param,
             .stream             = &__user_usbd_uac_rx_stream.use_as__vsf_stream_t,
@@ -520,15 +520,23 @@ int VSF_USER_ENTRY(void)
 #   endif
 #endif
 
-    vsf_stream_init(&__user_usbd_uac_rx_stream.use_as__vsf_stream_t);
-    __user_usbd_uac_rx_stream.rx.param = &__user_usbd_uac_rx_stream;
-    __user_usbd_uac_rx_stream.rx.evthandler = __usrapp_usbd_uac_on_stream;
-    vsf_stream_connect_rx(&__user_usbd_uac_rx_stream.use_as__vsf_stream_t);
+    vsf_stream_t *stream;
 
-    vsf_stream_init(&__user_usbd_uac_tx_stream.use_as__vsf_stream_t);
-    __user_usbd_uac_tx_stream.tx.param = &__user_usbd_uac_tx_stream;
-    __user_usbd_uac_tx_stream.tx.evthandler = __usrapp_usbd_uac_on_stream;
-    vsf_stream_connect_tx(&__user_usbd_uac_tx_stream.use_as__vsf_stream_t);
+    stream = &__user_usbd_uac_rx_stream.use_as__vsf_stream_t;
+    vsf_stream_init(stream);
+    stream->rx.param = &__user_usbd_uac_rx_stream;
+    stream->rx.evthandler = __usrapp_usbd_uac_on_stream;
+    vsf_stream_connect_rx(stream);
+
+    stream = &__user_usbd_uac_tx_stream.use_as__vsf_stream_t;
+    vsf_stream_init(stream);
+    stream->tx.param = &__user_usbd_uac_tx_stream;
+    stream->tx.evthandler = __usrapp_usbd_uac_on_stream;
+    vsf_stream_connect_tx(stream);
+
+    uint8_t *buffer;
+    uint_fast32_t size = vsf_stream_get_wbuf(stream, &buffer);
+    vsf_stream_write(stream, NULL, size);
 
     vk_usbd_init(&__user_usbd_uac.usbd.dev);
     vk_usbd_connect(&__user_usbd_uac.usbd.dev);
