@@ -58,10 +58,10 @@ extern "C" {
 #define vsf_distbus_stream_type(__name)     __vsf_distbus_stream_type(__name)
 
 #define __declare_distbus_stream(__name)                                        \
-            dcl_simple_class(vsf_distbus_stream_type(__name))
+            vsf_dcl_class(vsf_distbus_stream_type(__name))
 
 #define __define_distbus_stream(__name)                                         \
-            def_simple_class(vsf_distbus_stream_type(__name)) {                 \
+            vsf_class(vsf_distbus_stream_type(__name)) {                        \
                 public_member(                                                  \
                     implement(vsf_distbus_stream_t)                             \
                 )                                                               \
@@ -90,19 +90,17 @@ extern "C" {
 /*============================ TYPES =========================================*/
 
 enum {
-    VSF_DISTBUS_STREAM_CMD_CONNECT,
     VSF_DISTBUS_STREAM_CMD_DATA,
     VSF_DISTBUS_STREAM_ADDR_RANGE,
 };
 
-dcl_simple_class(vsf_distbus_stream_t)
-
-def_simple_class(vsf_distbus_stream_t) {
+vsf_class(vsf_distbus_stream_t) {
     public_member(
         implement(vsf_stream_t)
         implement(vsf_distbus_service_info_t)
         implement(vsf_distbus_service_t)
         vsf_distbus_t *distbus;
+        // is distbus_stream tx terminal
         bool is_tx;
     )
     private_member(
@@ -122,6 +120,8 @@ def_simple_class(vsf_distbus_stream_t) {
 extern const vsf_stream_op_t vsf_distbus_stream_op;
 
 /*============================ PROTOTYPES ====================================*/
+
+extern void vsf_distbus_stream_register_service(vsf_distbus_stream_t *distbus_stream);
 
 #if     defined(__VSF_DISTBUS_STREAM_CLASS_IMPLEMENT)                           \
     ||  defined(__VSF_DISTBUS_STREAM_CLASS_INHERIT__)

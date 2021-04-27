@@ -66,6 +66,9 @@ int VSF_USER_ENTRY(void)
     vsf_stdio_init();
 #       endif
 #   endif
+
+    extern void freetype_demo_init(void);
+    freetype_demo_init();
 #endif
 
     usrapp_ui_common.tgui.notifier.mask =
@@ -78,11 +81,11 @@ int VSF_USER_ENTRY(void)
     usrapp_ui_common.tgui.notifier.on_evt = __tgui_on_input_evt;
     vk_input_notifier_register(&usrapp_ui_common.tgui.notifier);
 
+    tgui_demo_init();
+
     // insecure operation
     //((vk_disp_param_t *)&usrapp_ui_common.disp->param)->color = VSF_DISP_COLOR_ARGB8888;
 	vsf_tgui_bind_disp(usrapp_ui_common.disp, &usrapp_ui_common.tgui.color, dimof(usrapp_ui_common.tgui.color));
-
-    tgui_demo_init();
 
     return 0;
 }

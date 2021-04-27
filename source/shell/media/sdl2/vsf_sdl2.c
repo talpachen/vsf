@@ -474,9 +474,10 @@ int SDL_InitSubSystem(uint32_t flags)
     }
 
     if (flags & SDL_INIT_VIDEO) {
-        __vsf_sdl2.disp->ui_data = NULL;
+        __vsf_sdl2.disp->ui_data = vsf_eda_get_cur();
         __vsf_sdl2.disp->ui_on_ready = __vsf_sdl2_disp_on_ready;
         vk_disp_init(__vsf_sdl2.disp);
+        vsf_thread_wfe(VSF_EVT_RETURN);
     }
     return 0;
 }
@@ -684,8 +685,7 @@ SDL_Surface * __SDL_CreateRGBSurfaceWithFormat(int w, int h, int depth, uint32_t
 {
     SDL_Surface *surface = vsf_heap_malloc(sizeof(SDL_Surface) + pixel_size * w * h);
     if (surface != NULL) {
-        surface->__format.format    = format;
-        surface->format             = &surface->__format;
+        surface->format             = (SDL_PixelFormat *)__SDL_GetFormatFromColor(format);
         surface->w                  = w;
         surface->h                  = h;
     }
@@ -849,6 +849,7 @@ SDL_Renderer * SDL_CreateRenderer(SDL_Window *window, int index, uint32_t flags)
     if (renderer != NULL) {
         renderer->window    = window;
         renderer->flags     = flags;
+        SDL_RenderClear(renderer);
     }
     return renderer;
 }
@@ -865,8 +866,9 @@ int SDL_RenderClear(SDL_Renderer *renderer)
     SDL_Window *window = renderer->window;
     uint_fast8_t pixel_size = vsf_disp_get_pixel_format_bytesize(window->format);
 
-    // TODO: set to default color instead of 0
-    memset(window->pixels, 0, pixel_size * window->area.w * window->area.h);
+    SDL_PixelFormat *format = (SDL_PixelFormat *)__SDL_GetFormatFromColor(window->format);
+    VSF_SDL2_ASSERT(format != NULL);
+    SDL_FillRect(&window->surface, NULL, format->Amask);
     return 0;
 }
 
@@ -923,7 +925,7 @@ void SDL_RenderPresent(SDL_Renderer *renderer)
 SDL_Texture * SDL_CreateTexture(SDL_Renderer *renderer, uint32_t format, int access, int w, int h)
 {
     uint_fast8_t pixel_size = vsf_disp_get_pixel_format_bytesize(format);
-    SDL_Texture *texture = vsf_heap_malloc(sizeof(struct SDL_Renderer) + pixel_size * w * h);
+    SDL_Texture *texture = vsf_heap_malloc(sizeof(struct SDL_Texture) + pixel_size * w * h);
     if (texture != NULL) {
         texture->format = (SDL_PixelFormat *)__SDL_GetFormatFromColor(format);
         VSF_SDL2_ASSERT(texture->format != NULL);
@@ -937,7 +939,7 @@ SDL_Texture * SDL_CreateTexture(SDL_Renderer *renderer, uint32_t format, int acc
 
 SDL_Texture * SDL_CreateTextureFromSurface(SDL_Renderer *renderer, SDL_Surface *surface)
 {
-    SDL_Texture *texture = vsf_heap_malloc(sizeof(struct SDL_Renderer));
+    SDL_Texture *texture = vsf_heap_malloc(sizeof(struct SDL_Texture));
     if (texture != NULL) {
         texture->format = surface->format;
         texture->w      = surface->w;

@@ -14,11 +14,12 @@
  *  limitations under the License.                                           *
  *                                                                           *
  ****************************************************************************/
+
 /*============================ INCLUDES ======================================*/
 
 #include "vsf.h"
 
-#if VSF_USE_UI == ENABLED && VSF_USE_LVGL == ENABLED && APP_USE_LVGL_DEMO == ENABLED
+#if VSF_USE_UI == ENABLED && VSF_USE_LVGL == ENABLED && (APP_USE_LVGL_DEMO == ENABLED)
 
 #include "../common/usrapp_common.h"
 
@@ -40,25 +41,20 @@
 /*============================ TYPES =========================================*/
 /*============================ GLOBAL VARIABLES ==============================*/
 /*============================ LOCAL VARIABLES ===============================*/
+
+static NO_INIT bool __lvgl_is_looping;
+
 /*============================ PROTOTYPES ====================================*/
 /*============================ IMPLEMENTATION ================================*/
 
 static lv_coord_t __lvgl_touchscreen_get_width(void)
 {
-#   ifndef LV_HOR_RES_MAX
-    return usrapp_ui_common.disp->param.width;
-#   else
-    return LV_HOR_RES_MAX;
-#   endif
+    return min(LV_HOR_RES_MAX, usrapp_ui_common.disp->param.width);
 }
 
 static lv_coord_t __lvgl_touchscreen_get_height(void)
 {
-#   ifndef LV_VER_RES_MAX
-    return usrapp_ui_common.disp->param.height;
-#   else
-    return LV_VER_RES_MAX;
-#   endif
+    return min(LV_VER_RES_MAX, usrapp_ui_common.disp->param.height);
 }
 
 static void __lvgl_on_evt(vk_input_type_t type, vk_input_evt_t *evt)
@@ -123,16 +119,19 @@ static bool __lvgl_touchscreen_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *
 static bool __lvgl_mouse_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
 {
     vk_mouse_evt_t* mouse_evt = &usrapp_ui_common.lvgl.mouse_evt;
+    lv_indev_state_t* state = &usrapp_ui_common.lvgl.state;
 
-    // only support left key
-    if (0 == vk_input_mouse_evt_button_get(mouse_evt)) {
-        data->state = vk_input_mouse_evt_button_is_down(mouse_evt) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
-    } else {
-        data->state = LV_INDEV_STATE_REL;
+    uint8_t id = vk_input_mouse_evt_get(mouse_evt);
+    if (id == VSF_INPUT_MOUSE_EVT_BUTTON) {
+        // only support left key
+        if (0 == vk_input_mouse_evt_button_get(mouse_evt)) {
+            *state = vk_input_mouse_evt_button_is_down(mouse_evt) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
+        }
     }
 
     data->point.x = vk_input_mouse_evt_get_x(mouse_evt);
     data->point.y = vk_input_mouse_evt_get_y(mouse_evt);
+    data->state = *state;
 
     return false;
 }
@@ -240,17 +239,36 @@ static void __lvgl_input_init(void)
     vk_input_notifier_register(&usrapp_ui_common.lvgl.notifier);
 }
 
-#if APP_USE_LINUX_DEMO == ENABLED
+void __lvgl_stop_looping(void)
+{
+    __lvgl_is_looping = false;
+}
 
+#if APP_USE_LINUX_DEMO == ENABLED
 void * __lvgl_thread(void *arg)
 {
+#if APP_LVGL_DEMO_CFG_ANIMINATION != ENABLED
     usrapp_ui_common.lvgl.eda_poll = vsf_eda_get_cur();
+#endif
 
     __lvgl_input_init();
 
-    while (1) {
+    while (__lvgl_is_looping) {
         lv_task_handler();
+#if APP_LVGL_DEMO_CFG_ANIMINATION == ENABLED
+        vsf_thread_delay_ms(10);
+#else
         vsf_thread_wfe(VSF_EVT_USER);
+#endif
+    }
+    return NULL;
+}
+
+static NO_INIT vsf_eda_t *__lvgl_demo_evt_to_notify;
+void __lvgl_on_disp_drv_inited(lv_disp_drv_t *disp_drv)
+{
+    if (__lvgl_demo_evt_to_notify != NULL) {
+        vsf_eda_post_evt(__lvgl_demo_evt_to_notify, VSF_EVT_USER);
     }
 }
 
@@ -269,6 +287,12 @@ int lvgl_main(int argc, char *argv[])
         return -1;
     }
 #else
+static NO_INIT bool __lvgl_is_disp_inited;
+void __lvgl_on_disp_drv_inited(lv_disp_drv_t *disp_drv)
+{
+    __lvgl_is_disp_inited = true;
+}
+
 int VSF_USER_ENTRY(void)
 {
     uint_fast8_t gamepad_num = 1;
@@ -316,7 +340,12 @@ int VSF_USER_ENTRY(void)
     disp_drv.buffer = &usrapp_ui_common.lvgl.disp_buf;
     disp = lv_disp_drv_register(&disp_drv);
 
-    vsf_lvgl_bind_disp(vsf_disp, &disp->driver);
+#if APP_USE_LINUX_DEMO == ENABLED
+    __lvgl_demo_evt_to_notify = vsf_eda_get_cur();
+#else
+    __lvgl_is_disp_inited = false;
+#endif
+    vsf_lvgl_bind_disp(vsf_disp, &disp->driver, __lvgl_on_disp_drv_inited);
 
     lv_indev_drv_init(&indev_drv);
     indev_drv.type = LV_INDEV_TYPE_POINTER;
@@ -344,16 +373,26 @@ int VSF_USER_ENTRY(void)
     lv_freetype_init(APP_LVGL_DEMO_CFG_FREETYPE_MAX_FACES);
 #endif
 
+#if APP_LVGL_DEMO_USE_TERMINAL == ENABLED
+    extern void lvgl_terminal_application(void);
+    lvgl_terminal_application();
+#else
     extern void lvgl_application(uint_fast8_t);
     lvgl_application(gamepad_num);
+#endif
 
+    __lvgl_is_looping = true;
 #if APP_USE_LINUX_DEMO == ENABLED
+    // wait for disp_on_inited
+    vsf_thread_wfe(VSF_EVT_USER);
+
     pthread_t thread;
     pthread_create(&thread, NULL, __lvgl_thread, NULL);
 #else
     __lvgl_input_init();
 
-    while (1) {
+    while (!__lvgl_is_disp_inited);
+    while (__lvgl_is_looping) {
         lv_task_handler();
     }
 #endif

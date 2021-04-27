@@ -439,7 +439,6 @@
     <ClInclude Include="..\..\..\..\source\component\usb\device\class\MSC\vsf_usbd_MSC_desc.h" />
     <ClInclude Include="..\..\..\..\source\component\usb\device\class\UVC\vsf_usbd_UVC.h" />
     <ClInclude Include="..\..\..\..\source\component\usb\device\vsf_usbd.h" />
-    <ClInclude Include="..\..\..\..\source\component\usb\driver\dcd\distbus_dcd\vsf_distbus_dcd.h" />
     <ClInclude Include="..\..\..\..\source\component\usb\driver\dcd\usbip_dcd\vsf_usbip_dcd.h" />
     <ClInclude Include="..\..\..\..\source\component\usb\driver\hcd\libusb_hcd\vsf_libusb_hcd.h" />
     <ClInclude Include="..\..\..\..\source\component\usb\driver\hcd\ohci\vsf_ohci.h" />
@@ -478,6 +477,9 @@
     <ClInclude Include="..\..\..\..\source\hal\arch\__vsf_arch_interface.h" />
     <ClInclude Include="..\..\..\..\source\hal\driver\common\common.h" />
     <ClInclude Include="..\..\..\..\source\hal\driver\driver.h" />
+    <ClInclude Include="..\..\..\..\source\hal\driver\vsf\distbus\driver.h" />
+    <ClInclude Include="..\..\..\..\source\hal\driver\vsf\distbus\usbd\vsf_hal_distbus_usbd.h" />
+    <ClInclude Include="..\..\..\..\source\hal\driver\vsf\driver.h" />
     <ClInclude Include="..\..\..\..\source\hal\driver\x86\driver.h" />
     <ClInclude Include="..\..\..\..\source\hal\driver\x86\win\device.h" />
     <ClInclude Include="..\..\..\..\source\hal\driver\x86\win\driver.h" />
@@ -1162,7 +1164,6 @@
     <ClCompile Include="..\..\..\..\source\component\usb\device\class\MSC\vsf_usbd_MSC.c" />
     <ClCompile Include="..\..\..\..\source\component\usb\device\class\UVC\vsf_usbd_UVC.c" />
     <ClCompile Include="..\..\..\..\source\component\usb\device\vsf_usbd.c" />
-    <ClCompile Include="..\..\..\..\source\component\usb\driver\dcd\distbus_dcd\vsf_distbus_dcd.c" />
     <ClCompile Include="..\..\..\..\source\component\usb\driver\dcd\usbip_dcd\backend\vsf_usbip_dcd_lwip.c" />
     <ClCompile Include="..\..\..\..\source\component\usb\driver\dcd\usbip_dcd\backend\vsf_usbip_dcd_win.c" />
     <ClCompile Include="..\..\..\..\source\component\usb\driver\dcd\usbip_dcd\vsf_usbip_dcd.c" />
@@ -1194,6 +1195,8 @@
     <ClCompile Include="..\..\..\..\source\hal\arch\vsf_arch_abstraction.c" />
     <ClCompile Include="..\..\..\..\source\hal\arch\x86\win\win_generic.c" />
     <ClCompile Include="..\..\..\..\source\hal\arch\x86\win\win_generic_simple.c" />
+    <ClCompile Include="..\..\..\..\source\hal\driver\vsf\distbus\usbd\vsf_hal_distbus_usbd.c" />
+    <ClCompile Include="..\..\..\..\source\hal\driver\vsf\distbus\vsf_hal_distbus.c" />
     <ClCompile Include="..\..\..\..\source\hal\driver\x86\win\driver.c" />
     <ClCompile Include="..\..\..\..\source\hal\driver\x86\win\uart\uart.c" />
     <ClCompile Include="..\..\..\..\source\hal\vsf_hal.c" />
@@ -1289,7 +1292,7 @@
     <ClCompile Include="..\..\demo\common\usrapp_usbh_common.c" />
     <ClCompile Include="..\..\demo\cpp_demo\cpp_demo.cpp" />
     <ClCompile Include="..\..\demo\disp_demo\disp_demo.c" />
-    <ClCompile Include="..\..\demo\distbus_demo\app\distbus_usbd.c" />
+    <ClCompile Include="..\..\demo\distbus_demo\app\distbus_hal.c" />
     <ClCompile Include="..\..\demo\distbus_demo\bus\distbus_lwip.c" />
     <ClCompile Include="..\..\demo\distbus_demo\bus\distbus_usart.c" />
     <ClCompile Include="..\..\demo\distbus_demo\distbus_demo.c" />
@@ -1309,6 +1312,7 @@
     <ClCompile Include="..\..\demo\lua_demo\love_demo.c" />
     <ClCompile Include="..\..\demo\lvgl_demo\lvgl_application.c" />
     <ClCompile Include="..\..\demo\lvgl_demo\lvgl_demo.c" />
+    <ClCompile Include="..\..\demo\lvgl_demo\lvgl_terminal_application.c" />
     <ClCompile Include="..\..\demo\lwip_demo\lwip_demo.c" />
     <ClCompile Include="..\..\demo\nnom_demo\nnom_demo.c" />
     <ClCompile Include="..\..\demo\nuklear_demo\main.c" />

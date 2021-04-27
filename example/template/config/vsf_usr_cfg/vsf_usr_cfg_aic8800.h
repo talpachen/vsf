@@ -87,6 +87,9 @@
 #define APP_USE_AWTK_DEMO                               DISABLED
 #define APP_USE_NNOM_DEMO                               DISABLED
 #define APP_USE_LVGL_DEMO                               ENABLED
+//#   define APP_LVGL_DEMO_USE_TERMINAL                   ENABLED
+//#   define APP_LVGL_DEMO_CFG_ANIMINATION                ENABLED
+
 #   define APP_LVGL_DEMO_USE_TOUCHSCREEN                ENABLED
 #   define APP_LVGL_DEMO_CFG_TOUCH_REMAP                ENABLED
 #   define APP_LVGL_DEMO_CFG_FREETYPE                   ENABLED
@@ -94,10 +97,10 @@
 // if using dl1x5(DL1X5 chips from DisplayLink), color_depth should be 16,
 //  and hor_res/ver_res should smaller than the hardware resolution
 #   define APP_LVGL_DEMO_CFG_COLOR_DEPTH                16
-#   define APP_LVGL_DEMO_CFG_HOR_RES                    480
-#   define APP_LVGL_DEMO_CFG_VER_RES                    320
-#   define APP_LVGL_DEMO_CFG_PIXEL_BUFFER_SIZE          (16 * 1024)
-// double 16K 16-bit pixels buffer at 0x00100000
+#   define APP_LVGL_DEMO_CFG_HOR_RES                    1920
+#   define APP_LVGL_DEMO_CFG_VER_RES                    1080
+#   define APP_LVGL_DEMO_CFG_PIXEL_BUFFER_SIZE          (80 * 1024)
+// double 80K 16-bit pixels buffer at 0x00100000
 #   define APP_LVGL_DEMO_CFG_PIXEL_BUFFER_PTR           0x00100000
 #   define APP_LVGL_DEMO_CFG_DOUBLE_BUFFER              ENABLED
 #define APP_USE_BTSTACK_DEMO                            ENABLED
@@ -113,7 +116,8 @@
 #define APP_USE_LUA_DEMO                                ENABLED
 #define APP_USE_COREMARK_DEMO                           ENABLED
 //#define APP_USE_DISTBUS_DEMO                            ENABLED
-//#   define APP_USE_DISTBUS_USBD_SLAVE_DEMO              ENABLED
+//#   define APP_USE_DISTBUS_HAL_SLAVE_DEMO               ENABLED
+//#       define APP_USE_DISTBUS_HAL_USBD_SLAVE_DEMO      ENABLED
 //#   define APP_DISTBUS_DEMO_CFG_LWIP_SERVER             ENABLED
 
 // demo for AIC8800
@@ -208,11 +212,19 @@
 // VSF_HAL_USE_DEBUG_STREAM for hardware debug uart
 // VSF_DEBUGGER_CFG_CONSOLE for debug console from debugger
 // select one ONLY
-#define VSF_HAL_USE_DEBUG_STREAM                        ENABLED
+
+// APP_LVGL_DEMO_USE_TERMINAL will overwrite DEBUG_STREAM, so DO NOT use hardware DEBUG_STREAM
+#if (APP_USE_LVGL_DEMO == ENABLED && APP_LVGL_DEMO_USE_TERMINAL == ENABLED)
+#   define VSF_CFG_DEBUG_STREAM_TX_T                    vsf_stream_t
+#   define VSF_CFG_DEBUG_STREAM_RX_T                    vsf_mem_stream_t
+#else
+#   define VSF_HAL_USE_DEBUG_STREAM                     ENABLED
+#endif
 //#define VSF_DEBUGGER_CFG_CONSOLE                        VSF_DEBUGGER_CFG_CONSOLE_SEGGER_RTT
 
 //#define VSF_ASSERT(...)
-#if VSF_HAL_USE_DEBUG_STREAM == ENABLED
+#if     VSF_HAL_USE_DEBUG_STREAM == ENABLED                                     \
+    ||  (APP_USE_LVGL_DEMO == ENABLED && APP_LVGL_DEMO_USE_TERMINAL == ENABLED)
 #   ifndef VSF_ASSERT
 #       define VSF_ASSERT(...)                          if (!(__VA_ARGS__)) {while(1);}
 #   endif
@@ -230,11 +242,12 @@ extern void VSF_DEBUG_STREAM_POLL(void);
 #endif
 
 #if     APP_USE_USBD_DEMO == ENABLED                                            \
-    ||  (APP_USE_DISTBUS_DEMO == ENABLED && APP_USE_DISTBUS_USBD_SLAVE_DEMO == ENABLED)
+    ||  (APP_USE_DISTBUS_DEMO == ENABLED && APP_USE_DISTBUS_HAL_SLAVE_DEMO == ENABLED)
 #   define VSF_USE_USB_DEVICE                           ENABLED
-#   if      APP_USE_DISTBUS_DEMO == ENABLED && APP_USE_DISTBUS_USBD_MASTER_DEMO == ENABLED
-#       define VSF_USBD_USE_DCD_DISTBUS                 ENABLED
-#   elif    APP_USE_DISTBUS_DEMO == ENABLED && APP_USE_DISTBUS_USBD_SLAVE_DEMO == ENABLED
+#   if      APP_USE_DISTBUS_DEMO == ENABLED && APP_USE_DISTBUS_HAL_MASTER_DEMO == ENABLED
+#       define VSF_HAL_USE_DISTBUS                      ENABLED
+#           define VSF_HAL_USE_DISTBUS_USBD             ENABLED
+#   elif    APP_USE_DISTBUS_DEMO == ENABLED && APP_USE_DISTBUS_HAL_SLAVE_DEMO == ENABLED
 #       define VSF_USBD_USE_DCD_DWCOTG                  ENABLED
 #           define USRAPP_USBD_DWCOTG_CFG_ULPI_EN       true
 #           define USRAPP_USBD_DWCOTG_CFG_UTMI_EN       false
@@ -293,6 +306,17 @@ extern void VSF_DEBUG_STREAM_POLL(void);
 #define VSF_LINUX_CFG_STACKSIZE                         (4 * 1024)
 #define VSF_TRACE_CFG_COLOR_EN                          ENABLED
 #define VSH_HAS_COLOR                                   1
+
+#if APP_USE_LVGL_DEMO == ENABLED && APP_LVGL_DEMO_USE_TERMINAL == ENABLED
+// priority of debug stream should be higher than linux kernel(vsf_prio_0)
+#   define LV_TERMIAL_APP_STREAM_TX_PRIO                vsf_prio_1
+
+// TODO: lvgl terminal demo support color
+#	undef  VSF_TRACE_CFG_COLOR_EN
+#	define VSF_TRACE_CFG_COLOR_EN                       DISABLED
+#   undef VSH_HAS_COLOR
+#	define VSH_HAS_COLOR                                0
+#endif
 
 /*============================ TYPES =========================================*/
 /*============================ GLOBAL VARIABLES ==============================*/

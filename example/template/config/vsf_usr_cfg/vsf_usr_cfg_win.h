@@ -28,6 +28,7 @@
 //  simple implementation will not use ThreadSuspend and ThreadResume and has better CPU usage
 //  **** but preempt is not supported ****
 //  priority configurations are dependent on MACROs below, so put them here(at top)
+//  IMPORTANT: vsf_arch_sleep MUST be called in vsf_plug_in_on_kernel_idle
 //#define VSF_ARCH_PRI_NUM                                1
 //#define VSF_ARCH_SWI_NUM                                0
 //#define VSF_OS_CFG_ADD_EVTQ_TO_IDLE                     ENABLED
@@ -59,7 +60,8 @@
 #define APP_USE_STREAM_HAL_DEMO                         ENABLED
 #   define APP_USE_STREAM_USART_DEMO                    ENABLED
 //#define APP_USE_DISTBUS_DEMO                            ENABLED
-//#   define APP_USE_DISTBUS_USBD_MASTER_DEMO             ENABLED
+//#   define APP_USE_DISTBUS_HAL_MASTER_DEMO              ENABLED
+//#       define APP_USE_DISTBUS_HAL_USBD_MASTER_DEMO     ENABLED
 //#   define APP_DISTBUS_DEMO_CFG_LWIP_CLIENT             ENABLED
 
 #define APP_USE_CPP_DEMO                                DISABLED
@@ -79,7 +81,12 @@
 #define APP_USE_AWTK_DEMO                               ENABLED
 // nnom minst demo seems to be broken
 #define APP_USE_NNOM_DEMO                               DISABLED
-#define APP_USE_LVGL_DEMO                               ENABLED
+#ifndef __VSF_X86_WIN_SINGLE_PRIORITY
+// lvgl will hold CPU, so other irq can not be run in single thread mode
+#   define APP_USE_LVGL_DEMO                            ENABLED
+#endif
+//#   define APP_LVGL_DEMO_USE_TERMINAL                   ENABLED
+//#   define APP_LVGL_DEMO_CFG_ANIMINATION                ENABLED
 // _vsnprintf of lvgl conflicts with ucrt
 #   define LV_SPRINTF_CUSTOM                            1
 #   define APP_LVGL_DEMO_USE_TOUCHSCREEN                ENABLED
@@ -87,10 +94,13 @@
 #   define APP_LVGL_DEMO_CFG_FREETYPE                   ENABLED
 #   define APP_LVGL_DEMO_CFG_FREETYPE_MAX_FACES         4
 #   define APP_LVGL_DEMO_CFG_COLOR_DEPTH                16
-#   define APP_LVGL_DEMO_CFG_HOR_RES                    256
-#   define APP_LVGL_DEMO_CFG_VER_RES                    256
+#   define APP_LVGL_DEMO_CFG_HOR_RES                    1920
+#   define APP_LVGL_DEMO_CFG_VER_RES                    1080
 #define APP_USE_BTSTACK_DEMO                            ENABLED
-#define APP_USE_VSFVM_DEMO                              ENABLED
+#ifndef __VSF_X86_WIN_SINGLE_PRIORITY
+// vsfvm will hold cpu, so other irq can not be run in single thread mode
+#   define APP_USE_VSFVM_DEMO                              ENABLED
+#endif
 // select one for tcpip stack
 #define APP_USE_VSFIP_DEMO                              DISABLED
 #define APP_USE_LWIP_DEMO                               ENABLED
@@ -210,8 +220,11 @@
 #define VSF_SYSTIMER_FREQ                               (0ul)
 
 #define VSF_USE_USB_DEVICE                              ENABLED
-#   if APP_USE_DISTBUS_DEMO == ENABLED && APP_USE_DISTBUS_USBD_MASTER_DEMO == ENABLED
-#       define VSF_USBD_USE_DCD_DISTBUS                 ENABLED
+#   if APP_USE_DISTBUS_DEMO == ENABLED && APP_USE_DISTBUS_HAL_MASTER_DEMO == ENABLED
+#       define VSF_HAL_USE_DISTBUS                      ENABLED
+#       if APP_USE_DISTBUS_HAL_USBD_MASTER_DEMO == ENABLED
+#           define VSF_HAL_USE_DISTBUS_USBD             ENABLED
+#       endif
 #   else
 #       define VSF_USBD_USE_DCD_USBIP                   ENABLED
 #           define VSF_USBIP_SERVER_CFG_DEBUG           ENABLED
@@ -336,6 +349,16 @@
 #   define VSF_WINUSB_CFG_WIN7                          ENABLED
 #else
 #    define VSF_TRACE_CFG_COLOR_EN                      ENABLED
+#endif
+
+#if APP_USE_LVGL_DEMO == ENABLED && APP_LVGL_DEMO_USE_TERMINAL == ENABLED
+// TODO: lvgl terminal demo support color
+#	undef  VSF_TRACE_CFG_COLOR_EN
+#	define VSF_TRACE_CFG_COLOR_EN                       DISABLED
+#	define VSH_HAS_COLOR                                0
+
+#	define VSF_DEBUGGER_CFG_CONSOLE                     VSF_DEBUGGER_CFG_CONSOLE_USER
+#	undef  VSF_HAL_USE_DEBUG_STREAM
 #endif
 
 /*----------------------------------------------------------------------------*

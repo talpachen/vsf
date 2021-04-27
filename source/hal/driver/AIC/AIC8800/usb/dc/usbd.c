@@ -32,18 +32,30 @@
 /*============================ PROTOTYPES ====================================*/
 
 extern vsf_err_t __aic8800_usb_init(aic8800_usb_t *usb, vsf_arch_prio_t priority,
-                usb_ip_irqhandler_t handler, void *param);
+                usb_ip_irqhandler_t handler, bool ulpi, void *param);
 
 /*============================ IMPLEMENTATION ================================*/
 
 vsf_err_t aic8800_usbd_init(aic8800_usb_t *dc, usb_dc_ip_cfg_t *cfg)
 {
+    bool ulpi = cfg->speed == USB_DC_SPEED_HIGH;
     dc->is_host = false;
-    return __aic8800_usb_init(dc, cfg->priority, cfg->irqhandler, cfg->param);
+    return __aic8800_usb_init(dc, cfg->priority, cfg->irqhandler, ulpi, cfg->param);
 }
 
 void aic8800_usbd_fini(aic8800_usb_t *dc)
 {
+}
+
+static void __aic8800_usbd_phy_init(void *param)
+{
+    aic8800_usb_t *dc = (aic8800_usb_t *)param;
+    volatile uint32_t *reg_base = dc->param->reg;
+
+    // gpvndctl = 0x02440041;
+    // while (!(gpvndctl & (1 <<27)));
+    reg_base[13] = 0x02440041;
+    while (!(reg_base[13] & (1 << 27)));
 }
 
 void aic8800_usbd_get_info(aic8800_usb_t *dc, usb_dc_ip_info_t *info)
@@ -56,6 +68,9 @@ void aic8800_usbd_get_info(aic8800_usb_t *dc, usb_dc_ip_info_t *info)
     dwcotg_info->ep_num = param->dc_ep_num;
     dwcotg_info->buffer_word_size = param->buffer_word_size;
     dwcotg_info->feature = param->feature;
+
+    dwcotg_info->vendor.param = dc;
+    dwcotg_info->vendor.phy_init = __aic8800_usbd_phy_init;
 }
 
 void aic8800_usbd_connect(aic8800_usb_t *dc)

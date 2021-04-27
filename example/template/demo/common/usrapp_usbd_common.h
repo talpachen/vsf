@@ -26,7 +26,8 @@
     &&  (   VSF_USBD_USE_DCD_MUSB_FDRC == ENABLED                               \
         ||  VSF_USBD_USE_DCD_DWCOTG == ENABLED                                  \
         ||  VSF_USBD_USE_DCD_USBIP == ENABLED                                   \
-        ||  VSF_USBD_USE_DCD_DISTBUS == ENABLED)
+        ||  (   VSF_HAL_USE_DISTBUS == ENABLED                                  \
+            &&  VSF_HAL_USE_DISTBUS_USBD == ENABLED))
 
 /*============================ MACROS ========================================*/
 /*============================ MACROFIED FUNCTIONS ===========================*/
@@ -58,8 +59,8 @@ typedef struct usrapp_usbd_common_t {
 #if VSF_USBD_USE_DCD_DWCOTG == ENABLED
     vk_dwcotg_dcd_t dwcotg_dcd;
 #endif
-#if VSF_USBD_USE_DCD_DISTBUS == ENABLED
-    vk_distbus_dcd_t distbus_dcd;
+#if VSF_HAL_USE_DISTBUS == ENABLED && VSF_HAL_USE_DISTBUS_USBD == ENABLED
+    vsf_hal_distbus_t hal_distbus;
 #endif
 } usrapp_usbd_common_t;
 

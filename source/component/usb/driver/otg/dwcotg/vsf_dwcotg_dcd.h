@@ -53,10 +53,14 @@ typedef struct vk_dwcotg_dcd_param_t {
 typedef struct vk_dwcotg_dc_ip_info_t {
     implement(usb_dc_ip_info_t)
     implement(vk_dwcotg_hw_info_t)
+
+    struct {
+        void *param;
+        void (*phy_init)(void *param);
+    } vendor;
 } vk_dwcotg_dc_ip_info_t;
 
-dcl_simple_class(vk_dwcotg_dcd_trans_t)
-def_simple_class(vk_dwcotg_dcd_trans_t) {
+vsf_class(vk_dwcotg_dcd_trans_t) {
     private_member(
         uint8_t *buffer;
         uint32_t remain;
@@ -72,8 +76,7 @@ typedef enum ctrl_transfer_state_t {
     DWCOTG_STATUS_STAGE,
 } ctrl_transfer_state_t;
 
-dcl_simple_class(vk_dwcotg_dcd_t)
-def_simple_class(vk_dwcotg_dcd_t) {
+vsf_class(vk_dwcotg_dcd_t) {
 
     public_member(
         vk_dwcotg_dcd_param_t const * const param;
