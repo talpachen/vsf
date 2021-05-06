@@ -15,8 +15,8 @@
  *                                                                           *
  ****************************************************************************/
 
-#ifndef __VSF_SDL2_VERSION_H__
-#define __VSF_SDL2_VERSION_H__
+#ifndef __VSF_SDL2_LOG_H__
+#define __VSF_SDL2_LOG_H__
 
 /*============================ INCLUDES ======================================*/
 
@@ -24,6 +24,8 @@
 
 #if VSF_USE_SDL2 == ENABLED
 
+// for vsf_trace
+#include "service/vsf_service.h"
 #include "SDL_stdinc.h"
 
 #include "begin_code.h"
@@ -33,39 +35,46 @@ extern "C" {
 #endif
 
 /*============================ MACROS ========================================*/
-
-#define SDL_MAJOR_VERSION                   2
-#define SDL_MINOR_VERSION                   0
-#define SDL_PATCHLEVEL                      0
-
-#define SDL_VERSIONNUM(__X, __Y, __Z)       ((__X) * 1000 + (__Y) * 100 + (__Z))
-#define SDL_COMPILEDVERSION                                                     \
-            SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL)
-#define SDL_VERSION_ATLEAST(__X, __Y, __Z)                                      \
-            (SDL_COMPILEDVERSION >= SDL_VERSIONNUM(__X, __Y, __Z))
-
-
-
-
-#if VSF_SDL_CFG_FAKE_API == ENABLED
-#define SDL_Linked_Version                  __vsf_sdl2_linked_version
-#endif
-
 /*============================ MACROFIED FUNCTIONS ===========================*/
+
+#define SDL_LogMessage(__category, __prio, __fmt, ...)                          \
+                                        __SDL_LogMessage(__prio, (__category), (__fmt), ##__VA_ARGS__)
+#define SDL_Log(...)                    __SDL_LogMessage(SDL_LOG_PRIORITY_INFO, 0, __VA_ARGS__)
+#define SDL_LogInfo(...)                __SDL_LogMessage(SDL_LOG_PRIORITY_INFO, __VA_ARGS__)
+#define SDL_LogError(...)               __SDL_LogMessage(SDL_LOG_PRIORITY_ERROR, __VA_ARGS__)
+#define SDL_LogCritical(...)            __SDL_LogMessage(SDL_LOG_PRIORITY_ERROR, __VA_ARGS__)
+#define SDL_LogDebug(...)               __SDL_LogMessage(SDL_LOG_PRIORITY_DEBUG, __VA_ARGS__)
+#define SDL_LogWarn(...)                __SDL_LogMessage(SDL_LOG_PRIORITY_WARN, __VA_ARGS__)
+#define SDL_LogVerbose(...)             __SDL_LogMessage(SDL_LOG_PRIORITY_INFO, __VA_ARGS__)
+
 /*============================ TYPES =========================================*/
 
-typedef struct SDL_version {
-    uint8_t major;
-    uint8_t minor;
-    uint8_t patch;
-} SDL_version;
+typedef enum SDL_LogCategory {
+    SDL_LOG_CATEGORY_APPLICATION,
+    SDL_LOG_CATEGORY_ERROR,
+    SDL_LOG_CATEGORY_ASSERT,
+    SDL_LOG_CATEGORY_SYSTEM,
+    SDL_LOG_CATEGORY_AUDIO,
+    SDL_LOG_CATEGORY_VIDEO,
+    SDL_LOG_CATEGORY_RENDER,
+    SDL_LOG_CATEGORY_INPUT,
+    SDL_LOG_CATEGORY_TEST,
+} SDL_LogCategory;
+
+typedef enum SDL_LogPriority {
+    SDL_LOG_PRIORITY_VERBOSE            = VSF_TRACE_INFO,
+    SDL_LOG_PRIORITY_DEBUG              = VSF_TRACE_DEBUG,
+    SDL_LOG_PRIORITY_INFO               = VSF_TRACE_INFO,
+    SDL_LOG_PRIORITY_WARN               = VSF_TRACE_WARNING,
+    SDL_LOG_PRIORITY_ERROR              = VSF_TRACE_ERROR,
+    SDL_LOG_PRIORITY_CRITICAL           = VSF_TRACE_ERROR,
+} SDL_LogPriority;
 
 /*============================ GLOBAL VARIABLES ==============================*/
 /*============================ LOCAL VARIABLES ===============================*/
 /*============================ PROTOTYPES ====================================*/
 
-extern const SDL_version * SDL_Linked_Version(void);
-
+extern void __SDL_LogMessage(SDL_LogPriority priority, int category, const char *fmt, ...);
 
 #ifdef __cplusplus
 }
@@ -73,5 +82,5 @@ extern const SDL_version * SDL_Linked_Version(void);
 #include "close_code.h"
 
 #endif      // VSF_USE_SDL2
-#endif      // __VSF_SDL2_VERSION_H__
+#endif      // __VSF_SDL2_LOG_H__
 /* EOF */

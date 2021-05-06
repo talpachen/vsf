@@ -570,12 +570,19 @@ vsf_err_t vsf_thread_start(vsf_thread_t *thread, vsf_prio_t priority)
 
 #if VSF_KERNEL_CFG_EDA_SUPPORT_TIMER == ENABLED
 SECTION(".text.vsf.kernel.vsf_thread_delay")
-void vsf_thread_delay(uint_fast32_t tick)
+void vsf_thread_delay(vsf_systimer_tick_t tick)
 {
     vsf_teda_set_timer(tick);
     vsf_thread_wfe(VSF_EVT_TIMER);
 }
 #endif
+
+SECTION(".text.vsf.kernel.vsf_thread_yield")
+void vsf_thread_yield(void)
+{
+    __vsf_eda_yield();
+    vsf_thread_wfe(VSF_EVT_YIELD);
+}
 
 #if VSF_KERNEL_CFG_SUPPORT_DYNAMIC_PRIOTIRY == ENABLED
 SECTION(".text.vsf.kernel.vsf_thread_set_priority")
@@ -588,9 +595,7 @@ vsf_prio_t vsf_thread_set_priority(vsf_prio_t priority)
         __vsf_eda_set_priority(&thread_obj->use_as__vsf_eda_t, priority);
         thread_obj->priority = priority;
 
-        // post and wait event, after new event is received, thread is on evtq with new priority
-        __vsf_eda_yield();
-        vsf_thread_wfe(VSF_EVT_YIELD);
+        vsf_thread_yield();
     }
     return orig_prio;
 }
@@ -641,7 +646,18 @@ vsf_sync_reason_t vsf_thread_mutex_enter(vsf_mutex_t *mtx, int_fast32_t timeout)
 SECTION(".text.vsf.kernel.vsf_thread_mutex")
 vsf_err_t vsf_thread_mutex_leave(vsf_mutex_t *mtx)
 {
-    return vsf_eda_mutex_leave(mtx);
+    vsf_err_t err = vsf_eda_mutex_leave(mtx);
+
+#if VSF_KERNEL_CFG_SUPPORT_DYNAMIC_PRIOTIRY == ENABLED
+    vsf_eda_t *eda_self = vsf_eda_get_cur();
+    // switch to original evtq right now if mutex boost priority of current task,
+    //  or current task will switch to the original priority after current event is processed and returned
+    if (eda_self->flag.state.is_new_prio) {
+        // send and wait a VSF_EVT_YIELD event will make current event processed and returned
+        vsf_thread_yield();
+    }
+#endif
+    return err;
 }
 
 SECTION(".text.vsf.kernel.vsf_thread_sem_post")

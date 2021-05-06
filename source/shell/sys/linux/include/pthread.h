@@ -2,6 +2,7 @@
 #define __VSF_LINUX_PTHREAD_H__
 
 #include "shell/sys/linux/vsf_linux_cfg.h"
+#include "vsf.h"
 
 #if VSF_LINUX_CFG_RELATIVE_PATH == ENABLED && VSF_LINUX_USE_SIMPLE_TIME == ENABLED
 #   include "./simple_libc/time.h"
@@ -13,6 +14,7 @@
 extern "C" {
 #endif
 
+#if VSF_LINUX_CFG_FAKE_API == ENABLED
 #define pthread_self                __vsf_linux_pthread_self
 #define pthread_create              __vsf_linux_pthread_create
 #define pthread_join                __vsf_linux_pthread_join
@@ -35,9 +37,10 @@ extern "C" {
 #define pthread_cond_broadcast      __vsf_linux_pthread_cond_broadcast
 #define pthread_cond_wait           __vsf_linux_pthread_cond_wait
 #define pthread_cond_timedwait      __vsf_linux_pthread_cond_timedwait
+#endif
 
-// PTHREAD_MUTEX_INITIALIZER is not support, please use pthread_mutex_init
-//#define PTHREAD_MUTEX_INITIALIZER       { 0 }
+// to use PTHREAD_MUTEX_INITIALIZER, __VSF_EDA_CLASS_INHERIT__ is needed or ooc is disabled
+#define PTHREAD_MUTEX_INITIALIZER   { .use_as__vsf_sync_t.max_union.max_value = 1 }
 
 typedef int pthread_t;
 typedef struct {

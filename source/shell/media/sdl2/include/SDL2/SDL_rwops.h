@@ -15,20 +15,18 @@
  *                                                                           *
  ****************************************************************************/
 
-#ifndef __USRAPP_NET_COMMON_H__
-#define __USRAPP_NET_COMMON_H__
+#ifndef __VSF_SDL2_RWOPS_H__
+#define __VSF_SDL2_RWOPS_H__
 
 /*============================ INCLUDES ======================================*/
 
-#include "vsf.h"
+#include "../../vsf_sdl2_cfg.h"
 
-#if VSF_USE_TCPIP == ENABLED
+#if VSF_USE_SDL2 == ENABLED
 
-#include "component/tcpip/netdrv/vsf_netdrv.h"
+#include "SDL_stdinc.h"
 
-#if VSF_USE_VSFIP == ENABLED
-#   include "component/3rd-party/vsfip/raw/vsfip.h"
-#endif
+#include "begin_code.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,37 +34,43 @@ extern "C" {
 
 /*============================ MACROS ========================================*/
 /*============================ MACROFIED FUNCTIONS ===========================*/
+
+#if VSF_SDL_CFG_FAKE_API == ENABLED
+#define SDL_RWFromFile                  __vsf_sdl2_rw_from_file
+#define SDL_RWsize                      __vsf_sdl2_rw_size
+#define SDL_RWclose                     __vsf_sdl2_rw_close
+#define SDL_RWseek                      __vsf_sdl2_rw_seek
+#define SDL_RWtell                      __vsf_sdl2_rw_tell
+#define SDL_RWread                      __vsf_sdl2_rw_read
+#define SDL_RWwrite                     __vsf_sdl2_rw_write
+#endif
+
 /*============================ TYPES =========================================*/
 
-#if VSF_NETDRV_USE_WPCAP == ENABLED
-typedef struct usrapp_net_common_t {
-#   if VSF_NETDRV_USE_WPCAP == ENABLED
-    vk_netdrv_wpcap_t netdrv;
-#   endif
-} usrapp_net_common_t;
-#endif
+enum {
+    RW_SEEK_SET                         = SEEK_SET,
+    RW_SEEK_CUR                         = SEEK_CUR,
+    RW_SEEK_END                         = SEEK_END,
+};
+typedef FILE SDL_RWops;
 
 /*============================ GLOBAL VARIABLES ==============================*/
-
-#if VSF_NETDRV_USE_WPCAP == ENABLED
-extern usrapp_net_common_t usrapp_net_common;
-#endif
-
 /*============================ LOCAL VARIABLES ===============================*/
 /*============================ PROTOTYPES ====================================*/
 
-extern vsf_err_t usrapp_net_common_init(
-#if VSF_NETDRV_USE_WPCAP == ENABLED
-    char *name
-#else
-    void
-#endif
-);
+extern SDL_RWops * SDL_RWFromFile(const char * file, const char * mode);
+extern int64_t SDL_RWsize(SDL_RWops * context);
+extern int SDL_RWclose(SDL_RWops * context);
+extern int64_t SDL_RWseek(SDL_RWops * context, int64_t offset, int whence);
+extern int64_t SDL_RWtell(SDL_RWops * context);
+extern size_t SDL_RWread(SDL_RWops * context, void * ptr, size_t size, size_t maxnum);
+extern size_t SDL_RWwrite(SDL_RWops * context, const void * ptr, size_t size, size_t num);
 
 #ifdef __cplusplus
 }
 #endif
+#include "close_code.h"
 
-#endif      // VSF_USE_TCPIP
-#endif      // __USRAPP_NET_COMMON_H__
+#endif      // VSF_USE_SDL2
+#endif      // __VSF_SDL2_RWOPS_H__
 /* EOF */

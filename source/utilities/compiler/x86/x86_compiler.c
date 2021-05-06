@@ -17,12 +17,7 @@
 
 /*============================ INCLUDES ======================================*/
 
-#include "./usbd.h"
-
-#if VSF_USE_USB_DEVICE == ENABLED && VSF_USBD_USE_DCD_DWCOTG == ENABLED
-
-// for vk_dwcotg_dc_ip_info_t
-#include "component/vsf_component.h"
+#include "kernel/vsf_kernel.h"
 
 /*============================ MACROS ========================================*/
 /*============================ MACROFIED FUNCTIONS ===========================*/
@@ -30,59 +25,72 @@
 /*============================ GLOBAL VARIABLES ==============================*/
 /*============================ LOCAL VARIABLES ===============================*/
 /*============================ PROTOTYPES ====================================*/
-
-extern vsf_err_t __aic8800_usb_init(aic8800_usb_t *usb, vsf_arch_prio_t priority,
-                usb_ip_irqhandler_t handler, void *param);
-
 /*============================ IMPLEMENTATION ================================*/
 
-vsf_err_t aic8800_usbd_init(aic8800_usb_t *dc, usb_dc_ip_cfg_t *cfg)
+#ifdef __WIN__
+size_t strlcpy(char *dst, const char *src, size_t dsize)
 {
-    dc->is_host = false;
-    return __aic8800_usb_init(dc, cfg->priority, cfg->irqhandler, cfg->param);
+    const char *osrc = src;
+    size_t nleft = dsize;
+    /* Copy as many bytes as will fit. */
+    if (nleft != 0) {
+        while (--nleft != 0) {
+            if ((*dst++ = *src++) == '\0')
+                break;
+        }
+    }
+    /* Not enough room in dst, add NUL and traverse rest of src. */
+    if (nleft == 0) {
+        if (dsize != 0)
+            *dst = '\0';        /* NUL-terminate dst */
+        while (*src++)
+            ;
+    }
+    return(src - osrc - 1);     /* count does not include NUL */
 }
 
-void aic8800_usbd_fini(aic8800_usb_t *dc)
+char * strsep(char **stringp, const char *delim)
 {
+    char *s;
+    const char *spanp;
+    int c, sc;
+    char *tok;
+    if ((s = *stringp)== NULL)
+        return (NULL);
+    for (tok = s;;) {
+        c = *s++;
+        spanp = delim;
+        do {
+            if ((sc =*spanp++) == c) {
+                if (c == 0)
+                    s = NULL;
+                else
+                    s[-1] = 0;
+                *stringp = s;
+                return (tok);
+            }
+        } while (sc != 0);
+    }
+    /* NOTREACHED */
 }
 
-static void __aic8800_usbd_phy_init(void *param)
+#   if !(VSF_USE_LINUX == ENABLED && VSF_LINUX_USE_SIMPLE_LIBC == ENABLED && VSF_LINUX_USE_SIMPLE_TIME == ENABLED)
+#       if VSF_KERNEL_CFG_SUPPORT_THREAD == ENABLED
+int nanosleep(const struct timespec *requested_time, struct timespec *remaining)
 {
-    aic8800_usb_t *dc = (aic8800_usb_t *)param;
-    volatile uint32_t *reg_base = dc->param->reg;
-
-    // gpvndctl = 0x02440041;
-    // while (!(gpvndctl & (1 <<27)));
-    reg_base[13] = 0x02440041;
-    while (!(reg_base[13] & (1 << 27)));
+    // TODO: assert current context is vsf_thread
+    vsf_systimer_tick_t tick =  vsf_systimer_ms_to_tick(requested_time->tv_sec *1000)
+                            +   vsf_systimer_us_to_tick(requested_time->tv_nsec / 1000);
+    if (!tick) {
+        tick = vsf_systimer_us_to_tick(1);
+    }
+    vsf_thread_delay(tick);
+    if (remaining != NULL) {
+        remaining->tv_nsec = 0;
+        remaining->tv_sec = 0;
+    }
+    return 0;
 }
-
-void aic8800_usbd_get_info(aic8800_usb_t *dc, usb_dc_ip_info_t *info)
-{
-    const aic8800_usb_const_t *param = dc->param;
-    vk_dwcotg_dc_ip_info_t *dwcotg_info = (vk_dwcotg_dc_ip_info_t *)info;
-
-    VSF_HAL_ASSERT(dwcotg_info != NULL);
-    dwcotg_info->regbase = param->reg;
-    dwcotg_info->ep_num = param->dc_ep_num;
-    dwcotg_info->buffer_word_size = param->buffer_word_size;
-    dwcotg_info->feature = param->feature;
-
-    dwcotg_info->vendor.param = dc;
-    dwcotg_info->vendor.phy_init = __aic8800_usbd_phy_init;
-}
-
-void aic8800_usbd_connect(aic8800_usb_t *dc)
-{
-}
-
-void aic8800_usbd_disconnect(aic8800_usb_t *dc)
-{
-}
-
-void aic8800_usbd_irq(aic8800_usb_t *dc)
-{
-    VSF_HAL_ASSERT(false);
-}
-
-#endif      // VSF_USE_USB_DEVICE && VSF_USBD_USE_DCD_DWCOTG
+#       endif
+#   endif
+#endif

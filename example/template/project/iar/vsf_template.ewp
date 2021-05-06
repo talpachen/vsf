@@ -7769,6 +7769,7 @@
                 <group>
                     <name>lwip</name>
                     <excluded>
+                        <configuration>vsf_template_m484</configuration>
                         <configuration>vsf_template_gd32e103</configuration>
                         <configuration>vsf_template_mt071</configuration>
                         <configuration>vsf_template_aic8800</configuration>
@@ -12266,6 +12267,12 @@
                     </file>
                     <file>
                         <name>$PROJ_DIR$\..\..\..\..\source\shell\media\sdl2\vsf_sdl2_cfg.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\source\shell\media\sdl2\vsf_sdl2_event.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\source\shell\media\sdl2\vsf_sdl2_pixelformat.c</name>
                     </file>
                 </group>
             </group>

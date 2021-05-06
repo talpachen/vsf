@@ -15,14 +15,23 @@
  *                                                                           *
  ****************************************************************************/
 
+#ifndef __VSF_SDL2_TRHEAD_H__
+#define __VSF_SDL2_TRHEAD_H__
+
 /*============================ INCLUDES ======================================*/
 
-#include "./usbd.h"
+#include "../../vsf_sdl2_cfg.h"
 
-#if VSF_USE_USB_DEVICE == ENABLED && VSF_USBD_USE_DCD_DWCOTG == ENABLED
+#if VSF_USE_SDL2 == ENABLED
 
-// for vk_dwcotg_dc_ip_info_t
-#include "component/vsf_component.h"
+#include "kernel/vsf_kernel.h"
+#include "SDL_stdinc.h"
+
+#include "begin_code.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*============================ MACROS ========================================*/
 /*============================ MACROFIED FUNCTIONS ===========================*/
@@ -31,58 +40,12 @@
 /*============================ LOCAL VARIABLES ===============================*/
 /*============================ PROTOTYPES ====================================*/
 
-extern vsf_err_t __aic8800_usb_init(aic8800_usb_t *usb, vsf_arch_prio_t priority,
-                usb_ip_irqhandler_t handler, void *param);
 
-/*============================ IMPLEMENTATION ================================*/
-
-vsf_err_t aic8800_usbd_init(aic8800_usb_t *dc, usb_dc_ip_cfg_t *cfg)
-{
-    dc->is_host = false;
-    return __aic8800_usb_init(dc, cfg->priority, cfg->irqhandler, cfg->param);
+#ifdef __cplusplus
 }
+#endif
+#include "close_code.h"
 
-void aic8800_usbd_fini(aic8800_usb_t *dc)
-{
-}
-
-static void __aic8800_usbd_phy_init(void *param)
-{
-    aic8800_usb_t *dc = (aic8800_usb_t *)param;
-    volatile uint32_t *reg_base = dc->param->reg;
-
-    // gpvndctl = 0x02440041;
-    // while (!(gpvndctl & (1 <<27)));
-    reg_base[13] = 0x02440041;
-    while (!(reg_base[13] & (1 << 27)));
-}
-
-void aic8800_usbd_get_info(aic8800_usb_t *dc, usb_dc_ip_info_t *info)
-{
-    const aic8800_usb_const_t *param = dc->param;
-    vk_dwcotg_dc_ip_info_t *dwcotg_info = (vk_dwcotg_dc_ip_info_t *)info;
-
-    VSF_HAL_ASSERT(dwcotg_info != NULL);
-    dwcotg_info->regbase = param->reg;
-    dwcotg_info->ep_num = param->dc_ep_num;
-    dwcotg_info->buffer_word_size = param->buffer_word_size;
-    dwcotg_info->feature = param->feature;
-
-    dwcotg_info->vendor.param = dc;
-    dwcotg_info->vendor.phy_init = __aic8800_usbd_phy_init;
-}
-
-void aic8800_usbd_connect(aic8800_usb_t *dc)
-{
-}
-
-void aic8800_usbd_disconnect(aic8800_usb_t *dc)
-{
-}
-
-void aic8800_usbd_irq(aic8800_usb_t *dc)
-{
-    VSF_HAL_ASSERT(false);
-}
-
-#endif      // VSF_USE_USB_DEVICE && VSF_USBD_USE_DCD_DWCOTG
+#endif      // VSF_USE_SDL2
+#endif      // __VSF_SDL2_TRHEAD_H__
+/* EOF */

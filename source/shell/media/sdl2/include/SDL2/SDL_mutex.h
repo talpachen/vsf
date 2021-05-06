@@ -15,49 +15,54 @@
  *                                                                           *
  ****************************************************************************/
 
+#ifndef __VSF_SDL2_MUTEX_H__
+#define __VSF_SDL2_MUTEX_H__
+
 /*============================ INCLUDES ======================================*/
 
-//#include "../../common.h"
-#include "./usbh.h"
+#include "../../vsf_sdl2_cfg.h"
 
-#if VSF_USE_USB_HOST == ENABLED && VSF_USBH_USE_HCD_DWCOTG == ENABLED
+#if VSF_USE_SDL2 == ENABLED
 
-// for vk_dwcotg_hc_ip_info_t and USB_SPEED_XXX
-#include "component/vsf_component.h"
+#include "kernel/vsf_kernel.h"
+#include "SDL_stdinc.h"
+
+#include "begin_code.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*============================ MACROS ========================================*/
 /*============================ MACROFIED FUNCTIONS ===========================*/
+
+#if VSF_SDL_CFG_FAKE_API == ENABLED
+#define SDL_CreateMutex                 __vsf_sdl2_create_mutex
+#define SDL_DestroyMutex                __vsf_sdl2_destroy_mutex
+#define SDL_TryLockMutex                __vsf_sdl2_try_lock_mutex
+#define SDL_LockMutex                   __vsf_sdl2_lock_mutex
+#define SDL_UnlockMutex                 __vsf_sdl2_unlock_mutex
+#endif
+
 /*============================ TYPES =========================================*/
+
+typedef vsf_mutex_t SDL_mutex;
+
 /*============================ GLOBAL VARIABLES ==============================*/
 /*============================ LOCAL VARIABLES ===============================*/
 /*============================ PROTOTYPES ====================================*/
 
-extern vsf_err_t __aic8800_usb_init(aic8800_usb_t *usb, vsf_arch_prio_t priority,
-                usb_ip_irqhandler_t handler, void *param);
+extern SDL_mutex* SDL_CreateMutex(void);
+extern void SDL_DestroyMutex(SDL_mutex * mutex);
+extern int SDL_TryLockMutex(SDL_mutex * mutex);
+extern int SDL_LockMutex(SDL_mutex * mutex);
+extern int SDL_UnlockMutex(SDL_mutex * mutex);
 
-/*============================ IMPLEMENTATION ================================*/
-
-vsf_err_t aic8800_usbh_init(aic8800_usb_t *hc, usb_hc_ip_cfg_t *cfg)
-{
-    hc->is_host = true;
-    return __aic8800_usb_init(hc, cfg->priority, cfg->irqhandler, cfg->param);
+#ifdef __cplusplus
 }
-
-void aic8800_usbh_get_info(aic8800_usb_t *hc, usb_hc_ip_info_t *info)
-{
-    const aic8800_usb_const_t *param = hc->param;
-    vk_dwcotg_hc_ip_info_t *dwcotg_info = (vk_dwcotg_hc_ip_info_t *)info;
-
-    VSF_HAL_ASSERT(info != NULL);
-    dwcotg_info->regbase = hc->param->reg;
-    dwcotg_info->ep_num = hc->param->hc_ep_num;
-    dwcotg_info->is_dma = true;
-    dwcotg_info->use_as__vk_dwcotg_hw_info_t = param->use_as__vk_dwcotg_hw_info_t;
-}
-
-void aic8800_usbh_irq(aic8800_usb_t *hc)
-{
-    VSF_HAL_ASSERT(false);
-}
-
 #endif
+#include "close_code.h"
+
+#endif      // VSF_USE_SDL2
+#endif      // __VSF_SDL2_MUTEX_H__
+/* EOF */
