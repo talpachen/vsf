@@ -155,7 +155,11 @@
 #else
 #   define DAP_PACKET_SIZE                              DAP_HID_PACKET_SIZE
 #endif
-#define DAP_PACKET_COUNT                                4
+#if defined(BRD_CFG_VLLINKLITE_GD32E103)
+#	define DAP_PACKET_COUNT                           	4
+#elif defined(BRD_CFG_VLLINKLITE_GD32F350)
+#	define DAP_PACKET_COUNT                         	3
+#endif
 #define TIMESTAMP_CLOCK                                 1000000			// 1M
 #define SWO_UART                                        1
 #define SWO_STREAM                                      0
