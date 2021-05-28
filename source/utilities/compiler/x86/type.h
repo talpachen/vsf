@@ -15,8 +15,8 @@
  *                                                                           *
  ****************************************************************************/
 
-#ifndef __APP_TYPE_H_INCLUDED__
-#define __APP_TYPE_H_INCLUDED__
+#ifndef __VSF_TYPE_H_INCLUDED__
+#define __VSF_TYPE_H_INCLUDED__
 
 
 
@@ -66,6 +66,7 @@ extern "C" {
 #endif
 
 /*============================ MACROS ========================================*/
+
 #define __optimal_bit_sz    (sizeof(uintalu_t) * 8)
 #define __optimal_bit_msk   (__optimal_bit_sz - 1)
 
@@ -104,8 +105,11 @@ extern "C" {
 // __WIN__ has no 64-bit stdio APIs, if simple_stdio in simple_libc is not used,
 //  implement 64-but stdio APIs here
 
+#       ifndef __VSF_COMPILER_STDIO_H__
+#       define __VSF_COMPILER_STDIO_H__
 typedef long                off_t;
 typedef long long           off64_t;
+#       endif
 
 #       define ftello64     ftell
 #       define fseeko64     fseek
@@ -121,7 +125,17 @@ extern char * strsep(char **stringp, const char *delim);
 extern size_t strlcpy(char *dst, const char *src, size_t dsize);
 
 #include <time.h>
+#   if !(VSF_USE_LINUX == ENABLED && VSF_LINUX_USE_SIMPLE_LIBC == ENABLED && VSF_LINUX_USE_SIMPLE_TIME == ENABLED)
+#       ifndef __VSF_COMPILER_TIME_H__
+#       define __VSF_COMPILER_TIME_H__
+typedef enum {
+    CLOCK_MONOTONIC,
+    CLOCK_REALTIME,
+} clockid_t;
+extern int clock_gettime(clockid_t clk_id, struct timespec *tp);
 extern int nanosleep(const struct timespec *requested_time, struct timespec *remaining);
+#       endif
+#   endif
 #endif
 
 #ifdef __cplusplus

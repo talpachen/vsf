@@ -49,6 +49,7 @@
 #   define APP_USE_USBD_USER_DEMO                       ENABLED
 #define APP_USE_SCSI_DEMO                               ENABLED
 #define APP_USE_AUDIO_DEMO                              ENABLED
+#   define APP_CFG_AUDIO_BUFFER_SIZE                    (VSF_LINUX_CFG_STACKSIZE - (4 * 1024))
 #define APP_USE_TGUI_DEMO                               ENABLED
 #define APP_USE_TGUI_DESIGNER_DEMO                      DISABLED
 #define APP_USE_SDL2_DEMO                               ENABLED
@@ -60,9 +61,9 @@
 #define APP_USE_STREAM_HAL_DEMO                         ENABLED
 #   define APP_USE_STREAM_USART_DEMO                    ENABLED
 //#define APP_USE_DISTBUS_DEMO                            ENABLED
-//#   define APP_USE_DISTBUS_HAL_MASTER_DEMO              ENABLED
-//#       define APP_USE_DISTBUS_HAL_USBD_MASTER_DEMO     ENABLED
-//#   define APP_DISTBUS_DEMO_CFG_LWIP_CLIENT             ENABLED
+//#   define APP_DISTBUS_DEMO_CFG_LWIP                    ENABLED
+//#   define APP_USE_DISTBUS_HAL_DEMO                     ENABLED
+//#       define APP_USE_DISTBUS_HAL_USBD_DEMO            ENABLED
 
 #define APP_USE_CPP_DEMO                                DISABLED
 #define VSF_LINUX_USE_SIMPLE_LIBC                       ENABLED
@@ -81,6 +82,21 @@
 // 3rd-party demos
 #define APP_USE_XBOOT_XUI_DEMO                          DISABLED
 #define APP_USE_AWTK_DEMO                               ENABLED
+#define APP_USE_LLGUI_DEMO                              ENABLED
+#if APP_USE_LLGUI_DEMO == ENABLED
+#   define CONFIG_COLOR_DEPTH                           16
+#   define CONFIG_MONITOR_WIDTH                         320
+#   define CONFIG_MONITOR_HEIGHT                        240
+#   define USE_DOUBLE_BUFFERING                         0
+
+#   define LL_FONT_NAME_LENGTH_MAX                      48
+#   define LL_BUTTON_TEXT_LENGTH_MAX                    16
+#   define LL_LINEEDIT_TEXT_LENGTH_MAX                  48
+#   define LL_CHECKBOX_TEXT_LENGTH_MAX                  16
+#   define LL_COMBOBOX_ITEM_MAX                         16
+
+#   define IMAGE_READ_BYTE_MAX                          1024
+#endif
 // nnom minst demo seems to be broken
 #define APP_USE_NNOM_DEMO                               DISABLED
 #ifndef __VSF_X86_WIN_SINGLE_PRIORITY
@@ -127,7 +143,7 @@
 #define VSF_USE_VIDEO                                   ENABLED
 #define VSF_USE_AUDIO                                   ENABLED
 #   define VSF_AUDIO_USE_DECODER_WAV                    ENABLED
-#   define VSF_AUDIO_USE_PLAY                           ENABLED
+#   define VSF_AUDIO_USE_PLAYBACK                       ENABLED
 #   define VSF_AUDIO_USE_CATURE                         DISABLED
 
 // UI runs in vsf_prio_0, other modules runs above vsf_prio_1
@@ -243,10 +259,10 @@
 #ifdef __WIN7__
 // winusb seems fail on win7
 #   define VSF_USBH_USE_HCD_LIBUSB                      ENABLED
-#       define VSF_LIBUSB_CFG_INSTALL_DRIVER            ENABLED
+#       define VSF_LIBUSB_CFG_INSTALL_DRIVER            DISABLED
 #else
 #   define VSF_USBH_USE_HCD_WINUSB                      ENABLED
-#       define VSF_WINUSB_CFG_INSTALL_DRIVER            ENABLED
+#       define VSF_WINUSB_CFG_INSTALL_DRIVER            DISABLED
 #endif
 
 #if VSF_USBH_USE_HCD_WINUSB == ENABLED
@@ -310,7 +326,12 @@
 
 #if APP_USE_VSFIP_DEMO == ENABLED || APP_USE_LWIP_DEMO == ENABLED
 #   define VSF_NETDRV_USE_WPCAP                         ENABLED
+// VSF_NETDRV_WPCAP_CFG_HW_PRIORITY should be higher than TCPIP_THREAD_PRIO
+#   ifdef __VSF_X86_WIN_SINGLE_PRIORITY
 #       define VSF_NETDRV_WPCAP_CFG_HW_PRIORITY         vsf_arch_prio_0
+#   else
+#       define VSF_NETDRV_WPCAP_CFG_HW_PRIORITY         vsf_arch_prio_2
+#   endif
 //  TODO: modify the virtual mac address
 #   define APP_NETDRV_WPCAP_CFG_MAC                     0xDC,0xFB,0x48,0x7B,0x9C,0x88
 #endif

@@ -255,7 +255,7 @@ static void * __vsf_libusb_libusb_user_thread(void *param)
 
             for (int i = 0; i < dimof(__vsf_libusb.pollfd); i++) {
                 if (__vsf_libusb.pollfd[i].fd >= 0) {
-                    vsf_linux_fd_rx_trigger(__vsf_libusb.pollfd[i].fd);
+                    vsf_linux_fd_rx_trigger(__vsf_libusb.pollfd[i].sfd, vsf_protect_sched());
                 }
             }
         }
@@ -293,8 +293,13 @@ int libusb_init(libusb_context **context)
         return LIBUSB_SUCCESS;
     }
 
-    __vsf_libusb.fd = vsf_linux_create_fd(NULL, &__vsf_linux_libusb_fdop);
+    vsf_linux_fd_t *sfd;
+    __vsf_libusb.fd = vsf_linux_create_fd(&sfd, &__vsf_linux_libusb_fdop);
+    if (__vsf_libusb.fd < 0) {
+        return LIBUSB_ERROR_NO_MEM;
+    }
     __vsf_libusb.pollfd[0].fd = __vsf_libusb.fd;
+    __vsf_libusb.pollfd[0].sfd = sfd;
     __vsf_libusb.pollfd[0].events = POLLIN;
 
     __vsf_libusb.is_to_exit = false;
@@ -421,8 +426,9 @@ ssize_t libusb_get_device_list(libusb_context *ctx, libusb_device *** list)
         }
         devlist[i] = NULL;
         *list = devlist;
+        return devnum;
     }
-    return devnum;
+    return LIBUSB_ERROR_NO_DEVICE;
 }
 
 void libusb_free_device_list(libusb_device **list, int unref_devices)
@@ -1071,7 +1077,7 @@ int usb_detach_kernel_driver_np(usb_dev_handle *dev, int interface)
 
 int usb_find_devices(void)
 {
-    return __vsf_libusb.devnum;
+    return __vsf_libusb.devnum > 0 ? __vsf_libusb.devnum : LIBUSB_ERROR_NO_DEVICE;
 }
 
 struct usb_bus *usb_get_busses(void)

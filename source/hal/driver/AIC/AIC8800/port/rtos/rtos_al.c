@@ -44,9 +44,17 @@
 #   error VSF_CALLBACK_TIMER_CFG_SUPPORT_ISR is required
 #endif
 
+#ifndef AIC8800_OSAL_CFG_TIMER_TASK_STACK_DEPTH
+#   define AIC8800_OSAL_CFG_TIMER_TASK_STACK_DEPTH      512
+#endif
+
+#ifndef AIC8800_OSAL_CFG_TIMER_TASK_STACK_PRIORITY
+#   define AIC8800_OSAL_CFG_TIMER_TASK_STACK_PRIORITY   2
+#endif
+
 /*============================ MACROFIED FUNCTIONS ===========================*/
 
-#ifdef __AIC8800_OSAL_CFG_TRACE__
+#ifdef AIC8800_OSAL_CFG_TRACE
 #   define rtos_trace(...)                  vsf_trace_debug(__VA_ARGS__)
 #   define rtos_trace_buffer(...)           vsf_trace_buffer(VSF_TRACE_DEBUG, __VA_ARGS__)
 #else
@@ -54,13 +62,13 @@
 #   define rtos_trace_buffer(...)
 #endif
 
-#ifdef __AIC8800_OSAL_CFG_TRACE_TASK__
+#ifdef AIC8800_OSAL_CFG_TRACE_TASK
 #   define rtos_trace_task(...)             rtos_trace(__VA_ARGS__)
 #else
 #   define rtos_trace_task(...)
 #endif
 
-#ifdef __AIC8800_OSAL_CFG_TRACE_QUEUE__
+#ifdef AIC8800_OSAL_CFG_TRACE_QUEUE
 #   define rtos_trace_queue(...)            rtos_trace(__VA_ARGS__)
 #   define rtos_trace_queue_buffer(...)     rtos_trace_buffer(__VA_ARGS__)
 #else
@@ -68,13 +76,13 @@
 #   define rtos_trace_queue_buffer(...)
 #endif
 
-#ifdef __AIC8800_OSAL_CFG_TRACE_NOTIFY__
+#ifdef AIC8800_OSAL_CFG_TRACE_NOTIFY
 #   define rtos_trace_notify(...)           rtos_trace(__VA_ARGS__)
 #else
 #   define rtos_trace_notify(...)
 #endif
 
-#ifdef __AIC8800_OSAL_CFG_TRACE_TIMER__
+#ifdef AIC8800_OSAL_CFG_TRACE_TIMER
 #   define rtos_trace_timer(...)            rtos_trace(__VA_ARGS__)
 #else
 #   define rtos_trace_timer(...)
@@ -112,6 +120,9 @@ typedef struct rtos_timer_t {
 
 /*============================ GLOBAL VARIABLES ==============================*/
 /*============================ LOCAL VARIABLES ===============================*/
+
+static NO_INIT rtos_task_handle __rtos_timer_task;
+
 /*============================ PROTOTYPES ====================================*/
 /*============================ IMPLEMENTATION ================================*/
 
@@ -134,14 +145,8 @@ uint32_t rtos_now(bool isr)
 
 static void __rtos_timer_on_timer(vsf_callback_timer_t * timer)
 {
-    TimerHandle_t xTimer = (TimerHandle_t)timer;
-    rtos_trace_timer("%s: %p on_timer\r\n", __FUNCTION__, timer);
-    if (xTimer->pxCallbackFunction != NULL) {
-        xTimer->pxCallbackFunction(xTimer);
-    }
-    if (xTimer->uxAutoReload) {
-        rtos_timer_start(xTimer, 0, false);
-    }
+    VSF_ASSERT(__rtos_timer_task != NULL);
+    vsf_eda_post_msg((vsf_eda_t *)__rtos_timer_task, timer);
 }
 
 TimerHandle_t rtos_timer_create(
@@ -245,7 +250,9 @@ int rtos_task_create(   rtos_task_fct func,
     strncpy(thread->name, name, sizeof(thread->name) - 1);
     thread->name[sizeof(thread->name) - 1] = '\0';
 
-    rtos_trace_task("%s: %s(%p) vsf_prio_%d" VSF_TRACE_CFG_LINEEND, __FUNCTION__, name, thread, real_prio);
+    rtos_trace_task("%s: %s(%p) vsf_prio_%d stack(%p:%d)" VSF_TRACE_CFG_LINEEND,
+                        __FUNCTION__, name, thread, real_prio,
+                        &thread[1], (stack_depth << 2));
     init_vsf_thread_ex( vsf_rtos_thread_t,
                         thread,
                         real_prio,
@@ -489,6 +496,9 @@ int rtos_queue_create(int elt_size, int nb_elt, rtos_queue *queue)
     rtos_queue q = vsf_heap_malloc(sizeof(vsf_rtos_queue_t) + nb_elt * elt_size);
     if (q != NULL) {
         q->head = q->tail = 0;
+        if (nb_elt <= 0) {
+            nb_elt = 1;
+        }
         q->node_num = nb_elt;
         q->node_size = elt_size;
 
@@ -598,6 +608,26 @@ bool rtos_queue_is_empty(rtos_queue queue)
     return 0 == vsf_eda_queue_get_cnt(&queue->use_as__vsf_eda_queue_t);
 }
 
+static void __rtos_timer_thread(void *param)
+{
+    TimerHandle_t xTimer;
+
+    while (1) {
+        vsf_thread_wfe(VSF_EVT_MESSAGE);
+
+        xTimer = vsf_eda_get_cur_msg();
+        VSF_ASSERT(xTimer != NULL);
+
+        rtos_trace_timer("%s: %p on_timer\r\n", __FUNCTION__, xTimer);
+        if (xTimer->pxCallbackFunction != NULL) {
+            xTimer->pxCallbackFunction(xTimer);
+        }
+        if (xTimer->uxAutoReload) {
+            rtos_timer_start(xTimer, 0, false);
+        }
+    }
+}
+
 #if __IS_COMPILER_IAR__
 //! statement is unreachable
 #   pragma diag_suppress=pe111
@@ -609,11 +639,14 @@ int rtos_init(void)
 //  and tv_sec in timeval structure MUST BE 64-bit,
 //  assert if current environment is OK
     volatile struct timeval time;
-    if (    (8 == sizeof(time.tv_sec))
-        &&  (4 == sizeof(time.tv_usec))) {
-        return 0;
+    if (    (8 != sizeof(time.tv_sec))
+        ||  (4 != sizeof(time.tv_usec))) {
+        return -1;
     }
-    return -1;
+
+    return rtos_task_create(__rtos_timer_thread, "rtos_timer", 0,
+                AIC8800_OSAL_CFG_TIMER_TASK_STACK_DEPTH, NULL,
+                AIC8800_OSAL_CFG_TIMER_TASK_STACK_PRIORITY, &__rtos_timer_task);
 }
 
 /* EOF */

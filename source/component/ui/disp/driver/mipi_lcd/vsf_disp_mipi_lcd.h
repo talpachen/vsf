@@ -174,7 +174,7 @@ extern "C" {
 #define LCD_REFRESH_LEFT_TO_RIGHT       (0 << 2)
 #define LCD_REFRESH_RIGHT_TO_LEFT       (1 << 2)
 #ifndef MIPI_LCD_ADDRESS_MODE_VALUE
-#   define MIPI_LCD_ADDRESS_MODE_VALUE  (GRAM_WRITE_RIGHT_TO_LEFT)
+#   define MIPI_LCD_ADDRESS_MODE_VALUE  (GRAM_WRITE_TOP_TO_BOTTOM | GRAM_WRITE_LEFT_TO_RIGHT | GRAM_WRITE_NORMAL_MODE)
 #endif
 
 #define TEAR_OUTPUT_V_BLANKING_ONLY             0
@@ -232,6 +232,55 @@ extern "C" {
 #endif
 
 #define VSF_DISP_MIPI_LCD_ILI9488  { VSF_DISP_MIPI_LCD_ILI9488_BASE VSF_DISP_MIPI_LCD_DEFAUT_INIT VSF_DISP_MIPI_LCD_ILI9488_EXTEND }
+
+#ifndef VSF_DISP_MIPI_LCD_ILI9341_BASE
+#   define VSF_DISP_MIPI_LCD_ILI9341_BASE \
+        VSF_DISP_MIPI_LCD_WRITE(0xCF,  3, 0x00, 0xC1, 0X30), \
+        VSF_DISP_MIPI_LCD_WRITE(0xED,  4, 0x64, 0x03, 0X12, 0X81), \
+        VSF_DISP_MIPI_LCD_WRITE(0xE8,  3, 0x85, 0x10, 0x7A), \
+        VSF_DISP_MIPI_LCD_WRITE(0xCB,  5, 0x39, 0x2C, 0x00, 0x34, 0x02), \
+        VSF_DISP_MIPI_LCD_WRITE(0xF7,  1, 0x20), \
+        VSF_DISP_MIPI_LCD_WRITE(0xEA,  2, 0x00, 0x00), \
+        VSF_DISP_MIPI_LCD_WRITE(0xC0,  1, 0x1B),                    /* Power Control 1 */ \
+        VSF_DISP_MIPI_LCD_WRITE(0xC1,  1, 0x01),                    /* Power Control 2 */ \
+        VSF_DISP_MIPI_LCD_WRITE(0xC5,  2, 0x30, 0x30),              /* VCOM Control */ \
+        VSF_DISP_MIPI_LCD_WRITE(0xC7,  1, 0XB7),                    /* VCOM Control 2 */ \
+        VSF_DISP_MIPI_LCD_WRITE(0xB1,  2, 0x01, 0x1B),              /* frame rate control */ \
+        VSF_DISP_MIPI_LCD_WRITE(0xB6,  2, 0x02, 0x82),              /* Display Function Control */ \
+        VSF_DISP_MIPI_LCD_WRITE(0xB5,  4, 0x5F, 0x5F, 0x3F, 0x3F),  /* Blanking Porch Control, VFP/VBP/0x00/HBP */ \
+        VSF_DISP_MIPI_LCD_WRITE(0xF2,  1, 0x00), \
+        VSF_DISP_MIPI_LCD_WRITE(MIPI_DCS_SET_GAMMA_CURVE,  1, 0x01),    /* Gamma Set */  \
+        VSF_DISP_MIPI_LCD_WRITE(0xE0, 15, 0x0F, 0x2A, 0x28, 0x08, 0x0E, 0x08, 0x54, 0XA9, 0x43, 0x0A, 0x0F, 0x00, 0x00, 0x00, 0x00), /* Positive Gamma Control */ \
+        VSF_DISP_MIPI_LCD_WRITE(0XE1, 15, 0x00, 0x15, 0x17, 0x07, 0x11, 0x06, 0x2B, 0x56, 0x3C, 0x05, 0x10, 0x0F, 0x3F, 0x3F, 0x0F), /* Negative Gamma Control */
+#endif
+
+#ifndef VSF_DISP_MIPI_LCD_ILI9341_EXTEND
+#   define VSF_DISP_MIPI_LCD_ILI9341_EXTEND
+#endif
+
+#define VSF_DISP_MIPI_LCD_ILI9341  { VSF_DISP_MIPI_LCD_ILI9341_BASE VSF_DISP_MIPI_LCD_DEFAUT_INIT VSF_DISP_MIPI_LCD_ILI9341_EXTEND }
+
+#ifndef VSF_DISP_MIPI_LCD_ST7789V_BASE
+#   define VSF_DISP_MIPI_LCD_ST7789V_BASE \
+        VSF_DISP_MIPI_LCD_WRITE(0xB1,  3, 0x40, 0x7F, 0x14), /* RGB Interface Control */\
+        VSF_DISP_MIPI_LCD_WRITE(0xB2,  5, 0x0C, 0x0C, 0x00, 0x33, 0x33), /* Porch Setting */\
+        VSF_DISP_MIPI_LCD_WRITE(0xB7,  1, 0x35), /* Gate Control */\
+        VSF_DISP_MIPI_LCD_WRITE(0xBB,  1, 0x20), /* VCOM Setting */\
+        VSF_DISP_MIPI_LCD_WRITE(0xC0,  1, 0x2C), /* LCM Control  */\
+        VSF_DISP_MIPI_LCD_WRITE(0xC2,  1, 0x01), /* VDV and VRH Command Enable */\
+        VSF_DISP_MIPI_LCD_WRITE(0xC3,  1, 0x0B), /* VRH Set */\
+        VSF_DISP_MIPI_LCD_WRITE(0xC4,  1, 0x20), /* VDV Set */\
+        VSF_DISP_MIPI_LCD_WRITE(0xC6,  1, 0x1F), /* Frame Rate Control in Normal Mode, 1F: 39 */\
+        VSF_DISP_MIPI_LCD_WRITE(0xD0,  2, 0xA4, 0xA1), /* Power Control 1 */\
+        VSF_DISP_MIPI_LCD_WRITE(0xE0, 14, 0xD0, 0x03, 0x09, 0x0E, 0x11, 0x3D, 0x47, 0x55, 0x53, 0x1A, 0x16, 0x14, 0x1F, 0x22), /* Positive Voltage Gamma Control */\
+        VSF_DISP_MIPI_LCD_WRITE(0xE1, 14, 0xD0, 0x02, 0x08, 0x0D, 0x12, 0x2C, 0x43, 0x55, 0x53, 0x1E, 0x1B, 0x19, 0x20, 0x22), /* Negative Voltage Gamma Control */
+#endif
+
+#ifndef VSF_DISP_MIPI_LCD_ST7789V_EXTEND
+#   define VSF_DISP_MIPI_LCD_ST7789V_EXTEND
+#endif
+
+#define VSF_DISP_MIPI_LCD_ST7789V  { VSF_DISP_MIPI_LCD_ST7789V_BASE VSF_DISP_MIPI_LCD_DEFAUT_INIT VSF_DISP_MIPI_LCD_ST7789V_EXTEND }
 
 
 #ifndef VSF_DISP_MIPI_LCD_ST7796S_BASE

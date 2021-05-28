@@ -50,6 +50,7 @@
 #define VSF_USE_FIFO                                    ENABLED
 #define VSF_USE_JSON                                    ENABLED
 #define VSF_USE_DISTBUS                                 ENABLED
+#   define VSF_DISTBUS_CFG_DEBUG                        ENABLED
 #define VSF_USE_HASH                                    ENABLED
 #define VSF_HASH_USE_CRC                                ENABLED
 
@@ -87,11 +88,15 @@
 
 #if     APP_USE_AWTK_DEMO == ENABLED || APP_USE_LVGL_DEMO == ENABLED \
     ||  APP_USE_LVGL_TERMINAL_DEMO == ENABLED || APP_USE_XBOOT_XUI_DEMO == ENABLED \
-    || APP_USE_TGUI_DEMO == ENABLED ||  APP_USE_SDL2_DEMO == ENABLED
+    ||  APP_USE_TGUI_DEMO == ENABLED ||  APP_USE_SDL2_DEMO == ENABLED \
+    ||  APP_USE_LLGUI_DEMO == ENABLED
 #   define VSF_USE_UI                                   ENABLED
 #endif
 #if APP_USE_AWTK_DEMO == ENABLED
 #   define VSF_USE_AWTK                                 ENABLED
+#endif
+#if APP_USE_LLGUI_DEMO == ENABLED
+#   define VSF_USE_LLGUI                                ENABLED
 #endif
 #if (APP_USE_LVGL_DEMO == ENABLED) || (APP_USE_LVGL_TERMINAL_DEMO == ENABLED)
 #   define VSF_USE_LVGL                                 ENABLED
